@@ -1,0 +1,21 @@
+{
+  "format": 1,
+  "horodatage": "2026-11-15T19:51:00Z",
+  "equipe": "accueil",
+  "kit": "0.1.0",
+  "etat": "bbf3d72769cc3883",
+  "commit": "bcf722d1a88f3291abdbbcbf292209cb038f3b3d",
+  "modifie": false,
+  "moteur": null,
+  "modele": null,
+  "question": "Combien de lignes compte le tableau ?",
+  "reponse": null,
+  "etapes": [],
+  "jetons": {
+    "entree": 0,
+    "sortie": 0
+  },
+  "cout_estime": 0.0,
+  "duree_s": 0.08,
+  "erreur": "CleAbsente : Clé d'API absente : aucune clé d'API n'est enregistrée. Que faire : lance uv run kit cle, puis colle la clé que l'animateur t'a donnée."
+}

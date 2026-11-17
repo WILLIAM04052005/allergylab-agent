@@ -7,6 +7,10 @@ temps d'une commande, sans l'ajouter aux dépendances du projet :
 
 Il écrit equipe/outils/dictionnaire_officiel.csv. Il recopie, il n'interprète
 pas : les rubriques gardent leur titre français, tel que publié.
+
+Cette transcription sert de référence : elle permet de vérifier que
+equipe/outils/codes.toml, recopié à la main, dit la même chose que le
+dictionnaire officiel.
 """
 
 import csv

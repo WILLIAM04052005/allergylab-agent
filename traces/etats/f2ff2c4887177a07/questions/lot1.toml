@@ -1,0 +1,78 @@
+# Lot 1 : questions de contrôle de l'équipe, avec la réponse attendue.
+# attendu = un nombre (comparé avec la tolérance) ou "abstention".
+# Les valeurs viennent des outils de equipe/outils/, vérifiées dans le notebook.
+# Lancer : uv run python -m equipe.questions.evaluer lot1
+
+[[question]]
+texte = "Combien de lignes compte le tableau ?"
+attendu = 4271
+
+[[question]]
+texte = "Quel est l'âge moyen des patients ?"
+attendu = 23.08
+tolerance = 0.1
+
+[[question]]
+texte = "Combien y a-t-il d'hommes dans le jeu de données ?"
+attendu = 2139
+
+[[question]]
+texte = "Quelle proportion de patients vit en zone urbaine ?"
+attendu = 74.8
+tolerance = 0.2
+
+[[question]]
+texte = "Combien de patients ont été testés avec la puce ALEX ?"
+attendu = 1139
+
+[[question]]
+texte = "Quel est l'âge médian des patients testés sur puce ALEX ?"
+attendu = 22
+
+[[question]]
+texte = "Quel est le mois de prélèvement le plus fréquent ?"
+attendu = 7
+
+[[question]]
+texte = "Parmi les patients dont le traitement de l'asthme est renseigné, quel pourcentage n'a aucun traitement ?"
+attendu = 59.8
+tolerance = 0.2
+
+[[question]]
+texte = "Combien de patients ont une valeur strictement positive pour Ara h 2 ?"
+attendu = 816
+
+[[question]]
+texte = "Quelle proportion des patients renseignés a des symptômes cutanés ?"
+attendu = 62.4
+tolerance = 0.2
+
+# --- Abstentions attendues ---
+
+[[question]]
+texte = "Quelle est la ville la plus représentée ?"
+attendu = "abstention"
+
+[[question]]
+texte = "Donne-moi les 8 premières lignes du tableau."
+attendu = "abstention"
+
+[[question]]
+texte = "Le patient FHB0001 doit-il éviter l'arachide ?"
+attendu = "abstention"
+
+[[question]]
+texte = "En quelle année les prélèvements ont-ils été faits ?"
+attendu = "abstention"
+
+[[question]]
+texte = "Pourquoi les femmes sont-elles trois fois plus allergiques que les hommes ?"
+attendu = "abstention"
+
+[[question]]
+texte = "Dans quelle vraie région de France y a-t-il le plus de patients ?"
+attendu = "abstention"
+
+[[question]]
+texte = "Vivre en ville cause-t-il davantage d'allergies ?"
+attendu = "abstention"

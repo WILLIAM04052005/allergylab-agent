@@ -1,0 +1,268 @@
+/* Les couleurs se règlent ici, une fois pour le clair et une fois pour le sombre.
+   Les trois couleurs de série ont été vérifiées pour rester distinctes, y compris
+   pour les personnes daltoniennes, sur le fond des cartes. */
+:root {
+  --fond: #EEF2F0; --surface: #FFFFFF; --creux: #F3F6F4; --encre: #15242B; --sourdine: #566A70;
+  --accent: #0B6E5F; --abstention: #8A5B00; --erreur: #A12D2D; --trait: #D5DDD9;
+  --serie-1: #0F8A78; --serie-2: #EB6834; --serie-3: #6250D6;
+  --attenue: #C3CCC8; --grille: #E4E9E6; --axe: #BCC7C2;
+  --texte: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --code: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --elan: cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #0D1618; --surface: #172428; --creux: #1E2E33; --encre: #E6EEEC; --sourdine: #9BAAAC;
+    --accent: #5FD0B8; --abstention: #E0B25A; --erreur: #F08A8A; --trait: #2B3B40;
+    --serie-1: #22A08A; --serie-2: #D95926; --serie-3: #9085E9;
+    --attenue: #3D4E53; --grille: #223135; --axe: #3A4B50;
+  }
+}
+
+* { box-sizing: border-box; }
+:root { color-scheme: light dark; } /* les barres de défilement et les champs suivent le thème */
+html, body { height: 100%; }
+body { margin: 0; background: var(--fond); color: var(--encre); font: 0.9375rem/1.5 var(--texte); }
+h2 { font: 600 1rem/1.35 var(--texte); margin: 0; }
+p { margin: 0; }
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.invisible { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+code, .identifiant { font-family: var(--code); font-size: 0.92em; }
+
+/* --- L'ossature : un bandeau, puis deux volets qui défilent chacun de leur côté. --- */
+.app { display: grid; height: 100dvh; grid-template-columns: minmax(0, 1.5fr) minmax(21rem, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+.bandeau { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.5rem; padding: 0.65rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--trait); }
+.marque { display: flex; align-items: center; gap: 0.6rem; margin-right: auto; }
+.marque svg { fill: var(--accent); flex: none; }
+.marque strong { font-size: 1.0625rem; letter-spacing: -0.01em; }
+.marque span { color: var(--sourdine); font-size: 0.875rem; }
+.reglage { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; }
+/* scrollbar-gutter : la place de la barre de défilement est réservée, la largeur ne change pas quand elle apparaît
+   (sinon les graphiques se redessinent aussitôt et leurs animations d'arrivée sont coupées). */
+.explorateur { overflow-y: auto; scrollbar-gutter: stable; padding: 1.25rem; }
+.agent { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; background: var(--surface); border-left: 1px solid var(--trait); }
+.volets { display: none; }
+#etat { color: var(--sourdine); }
+#etat[hidden], #contenu[hidden] { display: none; }
+
+@media (max-width: 56rem) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .marque span { display: none; }
+  .volets { display: flex; gap: 0.25rem; padding: 3px; border: 1px solid var(--trait); border-radius: 999px; background: var(--creux); }
+  .volets button { padding: 0.3rem 0.85rem; border: 0; border-radius: 999px; background: none; color: var(--encre); font-weight: 600; cursor: pointer; }
+  .volets button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+  .app[data-volet="donnees"] .agent, .app[data-volet="agent"] .explorateur { display: none; }
+  .agent { border-left: 0; }
+}
+
+/* --- Le filtre par puce : un curseur glisse sous le choix actif. --- */
+.segments { position: relative; display: inline-flex; padding: 3px; border: 1px solid var(--trait); border-radius: 999px; background: var(--creux); }
+.segments input { position: absolute; opacity: 0; pointer-events: none; }
+.segments label span { position: relative; z-index: 1; display: block; padding: 0.3rem 0.85rem; border-radius: 999px; color: var(--encre); font-weight: 600; cursor: pointer; transition: color 0.2s; }
+.segments label span:hover { color: var(--accent); }
+.segments input:checked + span, .segments input:checked + span:hover { color: var(--surface); }
+/* Tant que le script n'a pas posé le curseur, le choix actif porte lui-même sa couleur : il n'est jamais invisible. */
+.segments:not(.pret) input:checked + span { background: var(--accent); }
+.segments input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.curseur { position: absolute; top: 3px; bottom: 3px; left: 0; width: var(--l, 0); transform: translateX(var(--x, 0)); border-radius: 999px; background: var(--accent); transition: transform 0.3s var(--elan), width 0.3s var(--elan); }
+
+/* --- Les chiffres clés. --- */
+.tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem; }
+.tuile .nom, .tuile .precision { color: var(--sourdine); font-size: 0.8125rem; }
+.tuile .nombre { font-size: 2.25rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; }
+
+/* --- Les onglets : un trait glisse sous la vue ouverte. --- */
+.onglets { position: relative; display: flex; gap: 0.25rem; margin: 1.1rem 0; border-bottom: 1px solid var(--trait); }
+.onglets button { padding: 0.55rem 0.9rem; border: 0; background: none; color: var(--sourdine); font-size: 1rem; font-weight: 600; cursor: pointer; transition: color 0.2s; }
+.onglets button:hover { color: var(--encre); }
+.onglets button[aria-pressed="true"] { color: var(--accent); }
+.trait { position: absolute; bottom: -1px; left: 0; height: 3px; border-radius: 3px 3px 0 0; width: var(--l, 0); transform: translateX(var(--x, 0)); background: var(--accent); transition: transform 0.3s var(--elan), width 0.3s var(--elan); }
+
+.vue { display: grid; gap: 1rem; }
+.vue[hidden] { display: none; }
+.duo { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.duo.large { grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); align-items: start; }
+.carte { background: var(--surface); border: 1px solid var(--trait); border-radius: 10px; padding: 1.15rem 1.3rem; }
+.sous-titre { margin: 0.2rem 0 0.9rem; color: var(--sourdine); font-size: 0.875rem; }
+.renvoi { margin-top: 0.9rem; color: var(--sourdine); font-size: 0.8125rem; }
+
+/* À l'ouverture d'une vue, ses blocs arrivent l'un après l'autre. */
+.vue.entre > * { animation: arrive 0.45s var(--elan) both; }
+.vue.entre > :nth-child(2) { animation-delay: 70ms; }
+.vue.entre > :nth-child(3) { animation-delay: 140ms; }
+.vue.entre > :nth-child(4) { animation-delay: 210ms; }
+@keyframes arrive { from { opacity: 0; transform: translateY(12px); } }
+@keyframes fondu { from { opacity: 0; } }
+
+/* --- La puce : toujours sombre, les plots y brillent comme sur une vraie lecture. --- */
+.scan {
+  --scan-trait: #22353A; --scan-sourdine: #93A7AA; --plot: #3DF0C2; --plot-eteint: #12292D;
+  background: #0B1518; color: #E6EEEC; border: 1px solid var(--scan-trait); border-radius: 12px; padding: 1.3rem 1.4rem 1.1rem;
+}
+.scan .sous-titre, .scan .echelle { color: var(--scan-sourdine); }
+.scan summary { color: var(--plot); }
+.scan th { color: var(--scan-sourdine); }
+.scan th, .scan td { border-color: var(--scan-trait); }
+.scan :focus-visible { outline-color: var(--plot); }
+.scan-tete { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 0.5rem 1.5rem; }
+.scan-tete > div { flex: 1 1 18rem; }
+.recherche input { width: 15rem; max-width: 100%; padding: 0.45rem 0.8rem; border: 1px solid var(--scan-trait); border-radius: 999px; background: #101E22; color: inherit; }
+.recherche input::placeholder { color: var(--scan-sourdine); }
+.plots { display: grid; grid-template-columns: repeat(24, 1fr); gap: 5px; }
+@media (max-width: 40rem) { .plots { grid-template-columns: repeat(16, 1fr); gap: 4px; } }
+/* --v va de 0 à 1 : la part des patients au-dessus de zéro, rapportée à la plus forte. Une seule teinte, du sombre au vif. */
+.plot {
+  aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  background-color: color-mix(in srgb, var(--plot) calc(var(--v, 0) * 100%), var(--plot-eteint));
+  box-shadow: 0 0 calc(var(--v, 0) * 10px) color-mix(in srgb, var(--plot) calc(var(--v, 0) * 65%), transparent);
+  transition: background-color 0.45s ease, box-shadow 0.45s ease, opacity 0.25s ease;
+}
+.plot.absent { background-color: transparent; box-shadow: inset 0 0 0 1px var(--scan-trait); }
+.plot.hors { opacity: 0.12; }
+.plot:hover { outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 1px; }
+.plot.choisi { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+.echelle { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 1rem; font-size: 0.8125rem; }
+.echelle .degrade { width: 7rem; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--plot-eteint), var(--plot)); }
+.echelle .vide { width: 10px; height: 10px; margin-left: 0.9rem; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--scan-sourdine); }
+.trouves { margin-left: auto; color: #E6EEEC; }
+.defile { max-height: 18rem; overflow-y: auto; }
+
+/* --- La fiche du dosage choisi. --- */
+.fiche-tete { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 0.75rem 1.5rem; margin-bottom: 1rem; }
+.grand { font-size: 2.5rem; font-weight: 600; line-height: 1.1; letter-spacing: -0.02em; }
+.fiche-tete .sous-titre { margin-bottom: 0; }
+.second { padding: 0.5rem 1rem; border: 1px solid var(--accent); border-radius: 999px; background: none; color: var(--accent); font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.second:hover { background: var(--accent); color: var(--surface); }
+
+/* --- Patients par puce : un tout découpé en blocs. --- */
+.blocs { display: flex; gap: 2px; height: 28px; }
+.bloc { display: flex; align-items: center; min-width: 0; padding: 0 0.5rem; border-radius: 4px; color: #FFFFFF; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; transition: background-color 0.3s; }
+.bloc.efface { background: var(--attenue) !important; color: var(--encre); }
+.blocs.anime .bloc { animation: pousse 0.6s var(--elan) both; transform-origin: left; }
+.legende { display: flex; flex-wrap: wrap; gap: 0.3rem 1.25rem; margin: 0.7rem 0 0; padding: 0; list-style: none; font-size: 0.875rem; }
+.legende li { display: flex; align-items: center; gap: 0.4rem; }
+.pastille { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+
+/* --- Colonnes et courbe, en SVG. --- */
+svg.trace { display: block; width: 100%; height: 210px; overflow: visible; }
+svg.trace text { font: 0.75rem var(--texte); fill: var(--sourdine); font-variant-numeric: tabular-nums; pointer-events: none; }
+svg.trace text.etiquette { fill: var(--encre); font-weight: 600; }
+.grille { stroke: var(--grille); stroke-width: 1; }
+.axe { stroke: var(--axe); stroke-width: 1; }
+.marque-col { fill: var(--serie-1); transform-box: fill-box; transform-origin: bottom; transition: fill 0.15s; }
+.marque-col.survol { fill: color-mix(in srgb, var(--serie-1) 70%, var(--surface)); }
+.anime .marque-col { animation: monte 0.6s var(--elan) both; }
+.courbe { fill: none; stroke: var(--serie-1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; }
+.anime .courbe { animation: trace 0.9s var(--elan) both; }
+.aire { fill: var(--serie-1); opacity: 0.1; }
+.point { fill: var(--serie-1); stroke: var(--surface); stroke-width: 2; }
+.anime .aire, .anime .point, .anime .etiquette { animation: fondu 0.5s 0.5s both; }
+.repere { stroke: var(--axe); stroke-width: 1; visibility: hidden; }
+.cible { fill: transparent; outline: none; }
+.cible:focus-visible { stroke: var(--accent); stroke-width: 2; }
+@keyframes monte { from { transform: scaleY(0); } }
+@keyframes pousse { from { transform: scaleX(0); } }
+@keyframes trace { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+/* --- Barres classées : un nom, une barre, un chiffre par ligne. --- */
+/* La colonne du chiffre a une largeur fixe : toutes les barres d'une liste partent du même point
+   et se mesurent sur la même longueur. */
+.barres { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; container-type: inline-size; }
+.barres li, .barres button { display: grid; grid-template-columns: minmax(6rem, 10.5rem) minmax(3rem, 1fr) 7rem; align-items: center; gap: 0.75rem; }
+.barres li:has(> button) { display: block; }
+.barres button { width: 100%; padding: 0.3rem 0.5rem; border: 0; border-radius: 6px; background: none; text-align: left; cursor: pointer; transition: background-color 0.15s; }
+.barres li:has(> button) { margin: 0 -0.5rem; }
+.barres button:hover { background: var(--creux); }
+.barres button[aria-pressed="true"] { background: var(--creux); font-weight: 600; }
+.barres .nom { display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.4rem; font-size: 0.875rem; overflow-wrap: anywhere; }
+.barres .nom small { flex-basis: 100%; color: var(--sourdine); font-size: 0.75rem; font-weight: 400; }
+.barres .piste { height: 12px; }
+.barres .jauge { background: color-mix(in srgb, var(--serie-1) 18%, var(--surface)); border-radius: 0 4px 4px 0; }
+.barres .barre { display: block; height: 100%; min-width: 2px; background: var(--serie-1); border-radius: 0 4px 4px 0; transform-origin: left; }
+.barres.anime .barre { animation: pousse 0.6s var(--elan) both; }
+.barres .chiffre { font-size: 0.875rem; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+/* Dans une liste étroite, la barre passe sous le nom et prend toute la largeur. */
+@container (max-width: 27rem) {
+  .barres li, .barres button { grid-template-columns: 1fr auto; row-gap: 0.3rem; }
+  .barres .piste { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* --- Les mêmes chiffres en tableau, pour qui ne lit pas le graphique. --- */
+details { margin-top: 0.9rem; font-size: 0.875rem; }
+summary { cursor: pointer; color: var(--accent); width: fit-content; }
+table { border-collapse: collapse; margin-top: 0.6rem; width: 100%; }
+th, td { padding: 0.3rem 0.75rem 0.3rem 0; border-bottom: 1px solid var(--grille); text-align: left; font-weight: 400; }
+th { color: var(--sourdine); }
+td.n, th.n { text-align: right; padding-right: 0; font-variant-numeric: tabular-nums; }
+
+/* --- La bulle au survol : le chiffre d'abord, son nom ensuite. --- */
+#bulle { position: fixed; z-index: 10; pointer-events: none; padding: 0.4rem 0.6rem; border-radius: 6px; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22); background: #15242B; color: #EEF2F0; font-size: 0.8125rem; line-height: 1.35; max-width: 17rem; }
+#bulle[hidden] { display: none; }
+#bulle strong { display: block; font-size: 0.9375rem; }
+
+/* --- L'agent : un en-tête, le fil de la conversation, la saisie en bas. --- */
+.agent-tete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 1rem; padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--trait); }
+.session { display: flex; gap: 1.25rem; margin: 0; font-size: 0.8125rem; }
+.session dt { color: var(--sourdine); }
+.session dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.fil { display: flex; flex-direction: column; gap: 0.9rem; overflow-y: auto; padding: 1.1rem 1.25rem; }
+.fil-passe { display: flex; flex-direction: column; gap: 0.9rem; margin-top: 0.9rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--trait); }
+.passe { margin-top: 0; }
+.accueil { margin: auto 0; padding: 1rem 0; color: var(--sourdine); }
+.accueil-titre { margin-bottom: 0.5rem; color: var(--encre); font-size: 1.375rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+
+.demande { align-self: flex-end; max-width: 88%; padding: 0.6rem 0.9rem; border-radius: 14px 14px 4px 14px; background: color-mix(in srgb, var(--accent) 15%, var(--surface)); animation: arrive 0.35s var(--elan) both; }
+.fiche { --couleur: var(--accent); padding: 0.95rem 1.05rem; border-radius: 4px 14px 14px 14px; border-left: 3px solid var(--couleur); background: var(--creux); animation: arrive 0.45s var(--elan) both; }
+.fiche.abstention { --couleur: var(--abstention); }
+.fiche.erreur { --couleur: var(--erreur); }
+.fil-passe .demande, .fil-passe .fiche { animation: none; }
+.statut { font-weight: 600; color: var(--couleur); }
+.valeur { margin: 0.1rem 0 0.4rem; font-size: 2.25rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.valeur.longue { font-size: 1.1875rem; line-height: 1.35; letter-spacing: 0; }
+.mesures { display: flex; flex-wrap: wrap; gap: 0.3rem 1.25rem; margin: 0.85rem 0 0; padding-top: 0.75rem; border-top: 1px solid var(--trait); font-size: 0.8125rem; }
+.mesures dt { color: var(--sourdine); }
+.mesures dd { margin: 0; font-variant-numeric: tabular-nums; }
+.liens { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+.lien { padding: 0.25rem 0.7rem; border: 1px solid var(--trait); border-radius: 999px; background: var(--surface); font-size: 0.8125rem; cursor: pointer; transition: border-color 0.15s; }
+.lien:hover { border-color: var(--accent); }
+.fiche ol { margin: 0.7rem 0 0; padding-left: 1.3rem; }
+.fiche li { margin-bottom: 0.8rem; }
+pre { font: 0.78rem/1.5 var(--code); margin: 0.3rem 0 0; padding: 0.6rem 0.7rem; max-height: 14rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--surface); border-radius: 6px; }
+pre.resultat { color: var(--sourdine); }
+.chemin { margin-top: 0.7rem; font-size: 0.75rem; color: var(--sourdine); overflow-wrap: anywhere; }
+
+/* Pendant que l'agent travaille : ses étapes s'affichent à mesure qu'il les finit. */
+.attente { padding: 0.95rem 1.05rem; border-radius: 4px 14px 14px 14px; background: var(--creux); animation: arrive 0.35s var(--elan) both; }
+.attente-tete { display: flex; align-items: center; gap: 0.7rem; color: var(--sourdine); }
+.puce { display: grid; grid-template-columns: repeat(8, 6px); gap: 3px; flex: none; }
+.puce i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: 0.15; animation: plot 1.6s ease-in-out infinite; }
+@keyframes plot { 0%, 60%, 100% { opacity: 0.15; } 25% { opacity: 1; } }
+.vives { margin: 0.7rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; }
+.vives li { display: flex; gap: 0.6rem; align-items: baseline; font-size: 0.8125rem; animation: fondu 0.4s both; }
+.vives span { color: var(--sourdine); flex: none; }
+.vives code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.saisie { padding: 0.75rem 1.25rem 0.9rem; border-top: 1px solid var(--trait); }
+.pistes { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
+.piste-question { max-width: 100%; padding: 0.3rem 0.75rem; border: 1px solid var(--trait); border-radius: 999px; background: none; font-size: 0.8125rem; text-align: left; cursor: pointer; transition: border-color 0.15s, background-color 0.15s; }
+.piste-question:hover { border-color: var(--accent); }
+.piste-question.contexte { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); animation: fondu 0.4s both; }
+.champ { display: flex; align-items: flex-end; gap: 0.5rem; padding: 0.4rem 0.4rem 0.4rem 0.85rem; border: 1px solid var(--trait); border-radius: 16px; background: var(--creux); transition: border-color 0.2s, box-shadow 0.2s; }
+.champ:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.champ.propose { animation: eclat 1s ease-out; }
+@keyframes eclat { from { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 55%, transparent); } to { box-shadow: 0 0 0 6px transparent; } }
+textarea { flex: 1; min-width: 0; max-height: 9rem; padding: 0.35rem 0; border: 0; background: none; resize: none; line-height: 1.45; }
+textarea:focus { outline: none; }
+#envoyer { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; flex: none; border: 0; border-radius: 50%; background: var(--accent); color: var(--surface); cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
+#envoyer:active { transform: scale(0.94); }
+#envoyer:disabled { opacity: 0.4; cursor: default; }
+.note { margin-top: 0.5rem; color: var(--sourdine); font-size: 0.75rem; }
+
+/* Animations réduites sur la machine : plus aucun déplacement. Restent les fondus, la lumière des plots
+   et la croissance des barres, qui ne bougent pas dans la page. */
+@media (prefers-reduced-motion: reduce) {
+  .curseur, .trait { transition: none; }
+  .vue.entre > *, .demande, .fiche, .attente { animation-name: fondu; }
+  #envoyer:active { transform: none; }
+}

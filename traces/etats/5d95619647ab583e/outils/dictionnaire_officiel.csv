@@ -1,0 +1,138 @@
+rubrique,libelle,abrege,code
+Sexe,Masculin,M,1
+Sexe,Féminin,F,0
+Mois du prélèvement,Numéro de mois,1 à 12,
+Département de résidence,Numéro de département,,Anonymisé
+Département de résidence,Non renseigné,,999
+Région de France,Région de France,,Anonymisé
+Type d'habitat,9 - Non renseigné,,9
+Type d'habitat,0- Rural,,0
+Type d'habitat,1- Urbain,,1
+Atopie familliale (parents et fratrie),9 - Non renseigné,,9
+Atopie familliale (parents et fratrie),0 - Non,,0
+Atopie familliale (parents et fratrie),1 - Oui,,1
+ATCD ou actuel Dermatite Atopique,9 - Non renseigné,,9
+ATCD ou actuel Dermatite Atopique,0 - Aucun ATCD,,0
+ATCD ou actuel Dermatite Atopique,1 - DA ancienne guérie,,1
+ATCD ou actuel Dermatite Atopique,2 - DA actuelle,,2
+Traitement actuel DA,9 - Non renseigné,,9
+Traitement actuel DA,0 - Pas de traitement,,0
+Traitement actuel DA,1 - Emollients,,1
+Traitement actuel DA,2 - Dermocorticoïdes,,2
+Traitement actuel DA,3 - Protopic,,3
+Traitement actuel DA,4 - Ciclosporine voie générale,,4
+Traitement actuel DA,5 - Dupilumab,,5
+Traitement actuel DA,6 - Upadacitinib,,6
+Traitement actuel DA,7 - Baricitinib,,7
+Conjonctivite,9 - Non renseigné,,9
+Conjonctivite,0 - non,,0
+Conjonctivite,1 - oui,,1
+Syndrome oral,9 - Non renseigné,,9
+Syndrome oral,0 - Non,,0
+Syndrome oral,"1 - oui, léger (atteinte cutanéo-muqueuse)",,1
+Syndrome oral,"2 - oui, sévère (angioedème avec modification de la voix)",,2
+ATCD de pathologie mastocytaire,9 - Non renseigné,,9
+ATCD de pathologie mastocytaire,0 - Aucun ATCD connu,,0
+ATCD de pathologie mastocytaire,2 - SAMA,,2
+ATCD de pathologie mastocytaire,3 - Mastocytose connue,,3
+ATCD de pathologie mastocytaire,4 - HaT connue,,4
+ATCD de pathologie mastocytaire,5 - Mastocytose + HaT,,5
+ATCD d'anaphylaxie aux venins,9 - Non renseigné,,9
+ATCD d'anaphylaxie aux venins,0 - Aucun ATCD connu,,0
+ATCD d'anaphylaxie aux venins,1 - oui,,1
+COFACTEURS généraux,9 - Non renseigné,,9
+COFACTEURS généraux,0 - Aucun connu,,0
+COFACTEURS généraux,1 - Effort/Activité sportive,,1
+COFACTEURS généraux,2 - AINS,,2
+COFACTEURS généraux,3 - Alcool,,3
+COFACTEURS généraux,4 - Moisissures (maison insalubre),,4
+COFACTEURS généraux,5 - Acariens (ancienne literie ou drap non changés),,5
+COFACTEURS généraux,6 - Animaux de compagnie : chat,,6
+COFACTEURS généraux,7 - Animaux de compagnie : chien,,7
+COFACTEURS généraux,8 - Animaux de compagnie : cheval,,8
+COFACTEURS généraux,"10 -Animaux de compagnie : rongeur (lapin, hamster, cobaye, souris, rat …)",,10
+COFACTEURS généraux,11-Mucoviscidose,,11
+COFACTEURS généraux,12-IPP,,12
+Age d'apparition AA,9 - Non renseigné,,9
+Age d'apparition AA,0 - Pas d'AA,,0
+Age d'apparition AA,1- Avant 6 mois,,1
+Age d'apparition AA,2 - Entre 6 mois et 2 ans,,2
+Age d'apparition AA,3 - Entre 2 - 3 ans,,3
+Age d'apparition AA,4 - Entre 3 - 10 ans,,4
+Age d'apparition AA,5 - Entre 10 - 20 ans,,5
+Age d'apparition AA,6 - Après 20 ans,,6
+ATCD d'anaphylaxie alimentaire (AA),9 - Non renseigné,,9
+ATCD d'anaphylaxie alimentaire (AA),0 - Non,,0
+ATCD d'anaphylaxie alimentaire (AA),1 - Oui,,1
+ATCD d'anaphylaxie alimentaire (AA),2 - Pas d'anaphylaxie,,2
+ATCD d'anaphylaxie alimentaire (AA),3 - Seulement à l'interrogatoire,,3
+ATCD d'anaphylaxie alimentaire (AA),4 - SAMU/adrénaline,,4
+ATCD d'anaphylaxie alimentaire (AA),5 - Lors d'un TPO,,5
+ATCD d'anaphylaxie alimentaire (AA),6 - Urticaire isolée,,6
+ATCD d'anaphylaxie alimentaire (AA),7 - Signes systémiques,,7
+ATCD d'anaphylaxie alimentaire (AA),8 - Collapsus,,8
+Peau/urticaire,9 - sans objet,,9
+Peau/urticaire,0 - NON,,0
+Peau/urticaire,1 - OUI,,1
+Digestif,9 - sans objet,,9
+Digestif,0 - NON,,0
+Digestif,1 - OUI,,1
+respiratoire,9 - sans objet,,9
+respiratoire,0 - NON,,0
+respiratoire,1 - OUI,,1
+CV,9 - sans objet,,9
+CV,0 - NON,,0
+CV,1 - OUI,,1
+Polyallergie alimentaire,9 - Non renseigné,,9
+Polyallergie alimentaire,0 - Absence de polyallergie,,0
+Polyallergie alimentaire,1 - Au moins 2 classes d'aliments,,1
+Clinique par Aliment,9 - Non renseigné,,9
+Clinique par Aliment,0 - Aliment consommé,,0
+Clinique par Aliment,"1 - Aliment non consommé, en éviction stricte",,1
+Clinique par Aliment,2 - Aliment consommé sous ITO,,2
+Clinique par Aliment,3 - Eviction d'aliment post-anaphylaxie,,3
+Clinique par Aliment,4 - Anaphylaxie récente,,4
+TPO,9 - Non disponible,,9
+TPO,0 - TPO négatif,,0
+TPO,1 - TPO positif modéré,,1
+TPO,2 - TPO positif sévère,,2
+Viande de mammifère,9 - Non renseigné,,9
+Viande de mammifère,0 - Consommé,,0
+Viande de mammifère,1 - Non consommé,,1
+Viande de mammifère,2 - Anaphylaxie non retardée (<1 h),,2
+Viande de mammifère,3 - Anaphylaxie retardée (2-4 h),,3
+Viande de mammifère,4 - Anaphylaxie (sans délai connu),,4
+ARIA (rhinite),9 - Non renseigné,,9
+ARIA (rhinite),0 - Absence de rhinite,,0
+ARIA (rhinite),1 - Rhinite non gradée,,1
+ARIA (rhinite),"2 - Intermittent, léger",,2
+ARIA (rhinite),"3 - Intermittent, sévère",,3
+ARIA (rhinite),"4 - Persistant, léger",,4
+ARIA (rhinite),"5 - Persistant, sévère",,5
+Traitement rhinite,9 - Non renseigné,,9
+Traitement rhinite,0 - Aucun,,0
+Traitement rhinite,"1 - Anti-H1, voie locale",,1
+Traitement rhinite,2 - Anti-H1 voie générale,,2
+Traitement rhinite,3 - Anti-H1 + CS voie locale,,3
+Traitement rhinite,4 - CS voie générale,,4
+GINA (ancien),9 - Non renseigné,,9
+GINA (ancien),0 - Absence d'asthme,,0
+GINA (ancien),"1- Asthme, non gradé",,1
+GINA (ancien),"2 - Intermittent, léger",,2
+GINA (ancien),"3 - Intermittent, sévère",,3
+GINA (ancien),"4 -Persistant, léger",,4
+GINA (ancien),"5 - Persistant, sévère",,5
+Traitement (New) GINA,9 - Non renseigné,,9
+Traitement (New) GINA,0 - Aucun,,0
+Traitement (New) GINA,1 - SABA  à la demande,,1
+Traitement (New) GINA,2 - ICS faible dose,,2
+Traitement (New) GINA,3 - ICS/LABA faible dose,,3
+Traitement (New) GINA,4 - ICS/LABA moyenne/forte dose,,4
+Traitement (New) GINA,5 - ICS/LABA forte dose ou ICS long cours,,5
+Traitement (New) GINA,6 - Biothérapie anti-IL5/IL5R,,6
+Traitement (New) GINA,7 - Biothérapie anti-IL4/13R,,7
+Traitement (New) GINA,8 - Non répondeur biothérapie,,8
+Traitement (New) GINA,10 - LTRA +/- low dose ICS,,10
+Puce réalisée,0- ISAC version 1,,0
+Puce réalisée,1- ISAC E112i,,1
+Puce réalisée,2 - ALEX,,2

@@ -9,6 +9,7 @@ from pathlib import Path
 
 from smolagents import CodeAgent
 
+from equipe.outils.dictionnaire import codes_officiels
 from kit import modele, reponse
 from kit.donnees import charger
 
@@ -18,7 +19,7 @@ CONSIGNE = (Path(__file__).parent / "consigne.md").read_text(encoding="utf-8")
 def repondre(question):
     agent = CodeAgent(
         model=modele.ModeleKit(),  # le modèle de kit/reglages.toml
-        tools=[],  # les outils de equipe/outils/, une fois écrits et testés
+        tools=[codes_officiels],  # les outils de equipe/outils/ : ici, le dictionnaire officiel
         instructions=reponse.consigne(CONSIGNE),  # ta consigne, puis le format de réponse du kit
         max_steps=modele.REGLAGES["agent"]["etapes_max"],
         max_print_outputs_length=modele.REGLAGES["agent"]["sortie_max"],

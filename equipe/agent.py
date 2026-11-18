@@ -13,6 +13,7 @@ from smolagents import CodeAgent
 
 from equipe.outils.chercher_colonnes import chercher_colonnes
 from equipe.outils.decrire_colonne import decrire_colonne
+from equipe.outils.lignes import lignes
 from equipe.outils.repartition import repartition
 from equipe.outils.resume_numerique import resume_numerique
 from kit import modele, reponse
@@ -42,7 +43,7 @@ def repondre(question):
     modele_kit.kwargs["max_tokens"] = JETONS_SORTIE_MAX
     agent = CodeAgent(
         model=modele_kit,
-        tools=[chercher_colonnes, decrire_colonne, repartition, resume_numerique],
+        tools=[chercher_colonnes, decrire_colonne, repartition, resume_numerique, lignes],
         prompt_templates=GABARITS,
         instructions=reponse.consigne(CONSIGNE),  # ta consigne, puis le format de réponse du kit
         max_steps=modele.REGLAGES["agent"]["etapes_max"],

@@ -1,78 +1,130 @@
-# Lot 1 : questions de contrôle de l'équipe, avec la réponse attendue.
-# attendu = un nombre (comparé avec la tolérance) ou "abstention".
-# Les valeurs viennent des outils de equipe/outils/, vérifiées dans le notebook.
-# Lancer : uv run python -m equipe.questions.evaluer lot1
+# Lot 1 : questions de contrôle de l'équipe, au format du harnais du kit.
+#   uv run kit evaluer equipe/questions/lot1.toml
+# type : nombre (avec tolerance), choix (texte attendu) ou sans-reponse.
+# Valeurs vérifiées sur le fichier publié, dans le notebook et avec les outils.
 
 [[question]]
+id = "l01"
 texte = "Combien de lignes compte le tableau ?"
+type = "nombre"
 attendu = 4271
 
 [[question]]
+id = "l02"
 texte = "Quel est l'âge moyen des patients ?"
+type = "nombre"
 attendu = 23.08
 tolerance = 0.1
 
 [[question]]
+id = "l03"
 texte = "Combien y a-t-il d'hommes dans le jeu de données ?"
+type = "nombre"
 attendu = 2139
 
 [[question]]
+id = "l04"
 texte = "Quelle proportion de patients vit en zone urbaine ?"
+type = "nombre"
 attendu = 74.8
 tolerance = 0.2
 
 [[question]]
+id = "l05"
 texte = "Combien de patients ont été testés avec la puce ALEX ?"
+type = "nombre"
 attendu = 1139
 
 [[question]]
+id = "l06"
 texte = "Quel est l'âge médian des patients testés sur puce ALEX ?"
+type = "nombre"
 attendu = 22
 
 [[question]]
+id = "l07"
 texte = "Quel est le mois de prélèvement le plus fréquent ?"
+type = "nombre"
 attendu = 7
 
 [[question]]
+id = "l08"
 texte = "Parmi les patients dont le traitement de l'asthme est renseigné, quel pourcentage n'a aucun traitement ?"
+type = "nombre"
 attendu = 59.8
 tolerance = 0.2
 
 [[question]]
+id = "l09"
 texte = "Combien de patients ont une valeur strictement positive pour Ara h 2 ?"
+type = "nombre"
 attendu = 816
 
 [[question]]
+id = "l10"
 texte = "Quelle proportion des patients renseignés a des symptômes cutanés ?"
+type = "nombre"
 attendu = 62.4
 tolerance = 0.2
 
-# --- Abstentions attendues ---
+[[question]]
+id = "l11"
+texte = "Quel âge a le patient FHB0001 ?"
+type = "nombre"
+attendu = 21
 
 [[question]]
+id = "l12"
+texte = "Quel est le type de puce du patient le plus âgé ?"
+type = "choix"
+attendu = ["ISAC_V1", "ISAC V1"]
+
+[[question]]
+id = "l13"
+texte = "Combien de patients ont moins de 18 ans ?"
+type = "nombre"
+attendu = 2272
+
+[[question]]
+id = "l14"
+texte = "Parmi les femmes dont la réponse est renseignée, quel pourcentage a des symptômes cutanés ?"
+type = "nombre"
+attendu = 60.0
+tolerance = 0.2
+
+# --- Sans réponse : l'agent doit s'abstenir ---
+
+[[question]]
+id = "s01"
 texte = "Quelle est la ville la plus représentée ?"
-attendu = "abstention"
+type = "sans-reponse"
 
 [[question]]
-texte = "Donne-moi les 8 premières lignes du tableau."
-attendu = "abstention"
+id = "s02"
+texte = "Quel âge a le patient ZZZ9999 ?"
+type = "sans-reponse"
 
 [[question]]
+id = "s03"
 texte = "Le patient FHB0001 doit-il éviter l'arachide ?"
-attendu = "abstention"
+type = "sans-reponse"
 
 [[question]]
+id = "s04"
 texte = "En quelle année les prélèvements ont-ils été faits ?"
-attendu = "abstention"
+type = "sans-reponse"
 
 [[question]]
+id = "s05"
 texte = "Pourquoi les femmes sont-elles trois fois plus allergiques que les hommes ?"
-attendu = "abstention"
+type = "sans-reponse"
 
 [[question]]
+id = "s06"
 texte = "Dans quelle vraie région de France y a-t-il le plus de patients ?"
-attendu = "abstention"
+type = "sans-reponse"
 
 [[question]]
+id = "s07"
 texte = "Vivre en ville cause-t-il davantage d'allergies ?"
-attendu = "abstention"
+type = "sans-reponse"

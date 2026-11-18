@@ -22,6 +22,21 @@ Points à vérifier : correspondance probable (et non certaine) entre plusieurs 
 
 ## Mercredi 18 novembre
 
+**Résultat de la version 2 sur lot1 (Haiku)** : 17/17, 6 038 jetons en entrée et 636 en sortie par question, 0,00092 $, 4,7 s (contre 9 936 jetons, 0,0027 $ et 16,7 s au départ).
+
+**Batterie d'exemple du kit (`uv run kit evaluer --exemple`)** : justesse 0/2, abstention 1/1. Les traces montrent un agent trop prudent :
+- q01 (âge moyen sur 12 patients) : l'outil avait bien trouvé 33, mais la règle « moins de 30 patients → abstention » l'a fait renoncer ;
+- q02 (puce du patient le plus âgé) : abstention au nom des « données individuelles », et aucun outil ne savait trier ;
+- q03 (patient EX13) : abstention juste, mais pour une mauvaise raison (le patient n'existe pas, ce n'est pas une question de confidentialité).
+
+**Version 3** :
+- règles d'abstention resserrées : on s'abstient quand les données ne permettent pas de conclure, pas quand l'effectif est petit (on répond en le signalant). Le jeu est anonymisé et publié en données ouvertes : une question factuelle sur un patient a une réponse ; seul le conseil médical est refusé ;
+- nouvel outil `lignes` : un patient précis ou un extrême, 5 patients et 6 colonnes au plus, avec les ex aequo signalés ;
+- les outils suivent la table que le kit leur donne (table inventée pendant `--exemple`) ;
+- la consigne liste les 15 colonnes cliniques, pour éviter une étape de recherche ;
+- lot1 passe au format du harnais (`uv run kit evaluer`), avec 21 questions. Nos scripts d'évaluation et de bilan sont retirés : le kit fait la même chose avec `kit evaluer` et `kit bilan`.
+
+
 ## Jeudi 19 novembre
 
 ## Vendredi 20 novembre

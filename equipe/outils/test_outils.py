@@ -3,9 +3,12 @@
 from equipe.outils.chercher_colonnes import chercher_colonnes
 from equipe.outils.commun import CODES
 from equipe.outils.decrire_colonne import decrire_colonne
+from equipe.outils.lignes import lignes
 from equipe.outils.repartition import repartition
 from equipe.outils.resume_numerique import resume_numerique
+from kit import donnees
 from kit.donnees import colonnes
+from kit.evaluer import lire
 
 
 def test_decrire_donne_le_codage_du_sexe():
@@ -39,7 +42,7 @@ def test_refus_et_messages_qui_disent_quoi_faire():
     assert "Opérateurs admis" in repartition("Gender", "Age=>3")
     assert "utilise repartition" in resume_numerique("Gender")
     assert "utilise resume_numerique" in repartition("Ara_h_2")
-    assert repartition("Patient_ID").startswith("Refusé")
+    assert "utilise lignes" in repartition("Patient_ID")
     assert "impossible de conclure" in repartition("Gender", "Age>200")
 
 
@@ -52,3 +55,25 @@ def test_sorties_courtes():
     for nom in colonnes()["colonne"]:
         for texte in (decrire_colonne(nom), repartition(nom), resume_numerique(nom)):
             assert len(texte) < 2000
+
+
+def test_lignes_patient_precis_et_extreme():
+    assert "Age = 21" in lignes("Age", "Patient_ID=FHB0001")
+    assert "Patient_ID = XPW0110 ; Chip_Type = ISAC_V1 ; Age = 102" in lignes("Patient_ID, Chip_Type, Age", trier_par="Age", n=1)
+    assert "n'existe pas" in lignes("Age", "Patient_ID=ZZZ9999")
+    assert "ex aequo" in lignes("Age", trier_par="Age", decroissant=False)
+    assert "entre 1 et 6" in lignes("a, b, c, d, e, f, g")
+
+
+def test_les_outils_suivent_la_table_inventee():
+    # uv run kit evaluer --exemple remplace un moment le fichier publié par kit/exemple/mini.csv.
+    with donnees.utiliser(donnees.EXEMPLE):
+        assert "Age : 12 patients" in resume_numerique("Age") and "Moyenne 33" in resume_numerique("Age")
+        assert "Chip_Type = ISAC_V2 ; Age = 70" in lignes("Chip_Type, Age", trier_par="Age", n=1)
+        assert "n'existe pas dans la table en cours" in repartition("Ara_h_2")
+    assert "Age : 4271 patients" in resume_numerique("Age")
+
+
+def test_le_lot1_respecte_le_format_du_kit():
+    batterie = lire(donnees.RACINE / "equipe" / "questions" / "lot1.toml")
+    assert len(batterie.questions) == 21 and batterie.corrige

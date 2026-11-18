@@ -1,4 +1,4 @@
-AllergyLab : un agent IA qui analyse des données d'allergologie et sait dire « je ne peux pas conclure »
+# AllergyLab : un agent IA qui analyse des données d'allergologie et sait dire « je ne peux pas conclure »
 
 Un agent conversationnel qui répond en français à des questions sur un vrai jeu de données de santé, publié par la Société Française d'Allergologie : 4 271 patients, 256 colonnes (données cliniques et dosages d'IgE sur puces à allergènes).
 
@@ -30,7 +30,7 @@ Justesse	réponses justes, quand les données permettent de répondre	14 / 14
 Abstention	« je ne peux pas conclure », quand elles ne le permettent pas	7 / 7
 Frugalité	jetons, coût et temps par question	5 703 jetons, 0,00076 $, 3,0 s
 
-Évolution de la frugalité, par question, au fil des versions :
+# Évolution de la frugalité, par question, au fil des versions :
 
 Version	Jetons lus	Jetons écrits	Coût	Temps
 Agent de départ	9 936	3 324	0,00266 $	16,7 s
@@ -61,7 +61,7 @@ Comment ça marche
 
 L'agent suit la boucle Pensée → Action → Observation : il écrit un court code Python qui appelle ses outils, lit leur résultat, puis conclut. Il vise 2 étapes par question, et 1 étape quand il doit s'abstenir d'emblée (une question sur une ville, alors que le jeu de données n'en contient pas).
 
-Les choix techniques, et pourquoi
+# Les choix techniques, et pourquoi
 
 1. Accès fermé aux données : souveraineté. L'agent ne reçoit pas le tableau. Il n'atteint les données qu'à travers les outils, qui renvoient des résultats agrégés. Aucune ligne de patient n'est envoyée à l'API du modèle. Seul l'outil lignes, prévu pour les questions sur un patient précis, renvoie quelques valeurs individuelles : 5 patients et 6 colonnes au plus.
 
@@ -80,7 +80,7 @@ Chaque outil renvoie un message d'erreur qui dit quoi faire. Exemple : Colonne '
 
 5. Mesurer avant d'optimiser. Chaque changement a été évalué sur la même batterie de questions, avec des réponses attendues calculées indépendamment (dans un notebook Jupyter). Les outils sont couverts par 12 tests unitaires qui ne consomment aucun jeton.
 
-Ce que l'analyse des données a révélé
+# Ce que l'analyse des données a révélé
 
 Le travail sur l'agent a d'abord été un travail sur les données :
 
@@ -90,7 +90,7 @@ Le dictionnaire officiel ne donne ni unité ni seuil de positivité pour les dos
 Des points restent ouverts et sont documentés dans le journal : le code 10 (« rongeur de compagnie ») pour 925 patients dans les cofacteurs, et une colonne Sensitization absente du dictionnaire.
 Lancer le projet
 
-Il faut git et uv, ainsi qu'une clé d'API Anthropic.
+# Il faut git et uv, ainsi qu'une clé d'API Anthropic.
 
 git clone https://github.com/WILLIAM04052005/allergylab-agent.git
 cd allergylab-agent
@@ -98,7 +98,7 @@ uv run kit installer          # demande la clé d'API, rangée hors du dépôt
 uv run kit controle           # vérifie données, clé et modèle
 uv run kit agent "Quel est l'âge moyen des patients ?"
 
-Pour évaluer l'agent et suivre les coûts :
+# Pour évaluer l'agent et suivre les coûts :
 
 uv run kit evaluer equipe/questions/lot1.toml   # justesse, abstention, frugalité
 uv run kit bilan                                # coûts cumulés, par jour
@@ -115,7 +115,7 @@ traces/	chaque question posée et chaque évaluation, avec étapes, jetons et co
 kit/	le harnais fourni pour la semaine : boucle, évaluation, traces
 donnees/	le jeu de données et son dictionnaire, tels que publiés
 
-Stack : Python 3.12, smolagents (Hugging Face), Claude Haiku 5.5 (Anthropic), pandas, pytest, uv.
+# Stack : Python 3.12, smolagents (Hugging Face), Claude Haiku 5.5 (Anthropic), pandas, pytest, uv.
 
 Données et crédits
 Données : jeu « Allergen Chip Challenge », Société Française d'Allergologie, DOI 10.60597/j5fe-g420, sous Licence Ouverte 2.0. Les fichiers de donnees/ sont reproduits sans modification.

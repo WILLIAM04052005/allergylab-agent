@@ -1,80 +1,125 @@
-# AllergyLab
+AllergyLab : un agent IA qui analyse des données d'allergologie et sait dire « je ne peux pas conclure »
 
-Kit de démarrage de la semaine AllergyLab : on y construit un agent qui analyse un jeu de données de santé publié.
+Un agent conversationnel qui répond en français à des questions sur un vrai jeu de données de santé, publié par la Société Française d'Allergologie : 4 271 patients, 256 colonnes (données cliniques et dosages d'IgE sur puces à allergènes).
 
-Le kit est un **harnais** : tout ce qui entoure le modèle et le rend utilisable, c'est-à-dire la boucle, les outils, la consigne, les garde-fous, les traces.
+On lui pose une question en langage naturel. Il choisit ses outils, calcule, puis rend une réponse structurée :
 
-## Démarrer
+$ uv run kit agent "Quelle proportion de patients vit en zone urbaine ?"
 
-Il faut deux outils sur la machine : git et uv. Clone le dépôt dans ton dossier personnel, hors d'un dossier synchronisé (OneDrive, iCloud), puis, depuis le dossier du dépôt :
+  statut         reponse
+  valeur         74.8
+  justification  966 patients urbains sur 1 291 renseignés ; 2 980 patients
+                 non renseignés (code 9) exclus du calcul.
 
-```
-uv run kit installer
-uv run kit controle
-uv run kit agent "Combien de lignes compte le tableau ?"
-```
+Et quand les données ne permettent pas de répondre, il le dit au lieu d'inventer (sorties abrégées) :
 
-`uv run kit` seul affiche la liste des commandes. Chaque commande rend le code 0 quand tout va bien, 1 sinon. Tout passe par `uv run` : pas d'environnement virtuel à activer, pas de `pip`.
+$ uv run kit agent "Vivre en ville cause-t-il davantage d'allergies ?"
 
-`installer` te demande la clé d'API que l'animateur t'a donnée : colle-la dans le terminal, rien ne s'affiche, c'est normal. Elle se range dans ton dossier personnel (`.allergylab/cle`), hors du dépôt : elle ne peut pas partir dans un commit. Pour la remplacer : `uv run kit cle`.
+  statut         abstention
+  justification  Les données montrent au mieux une association entre habitat
+                 et sensibilisation, jamais une cause.
 
-## Les données
+Projet réalisé pendant la semaine AllergyLab (EFREI, programme Open Data University, novembre 2026).
 
-`donnees/allergenchipchallenge-data-corrected-final-hdh-sfa.csv` est le jeu « Allergen Chip Challenge » publié par la Société Française d'Allergologie, DOI [10.60597/j5fe-g420](https://doi.org/10.60597/j5fe-g420), sous Licence Ouverte 2.0. Son dictionnaire officiel, `donnees/acc-dictionnaire-final.xls`, est livré tel que publié.
+Résultats
 
-Ces deux fichiers sont dans le dépôt sans aucune modification, et on ne les modifie pas : `uv run kit controle` vérifie leur empreinte.
+L'agent est évalué sur trois critères, avec le harnais d'évaluation fourni par le kit :
 
-En Python :
+Critère	Ce qu'on mesure	Résultat
+Justesse	réponses justes, quand les données permettent de répondre	14 / 14
+Abstention	« je ne peux pas conclure », quand elles ne le permettent pas	7 / 7
+Frugalité	jetons, coût et temps par question	5 703 jetons, 0,00076 $, 3,0 s
 
-```python
-from kit.donnees import charger, colonnes
+Évolution de la frugalité, par question, au fil des versions :
 
-tableau = charger()      # le tableau complet, sans recodage ni filtrage
-dictionnaire = colonnes()  # une ligne par colonne : bloc, lecture, types de puce
-```
+Version	Jetons lus	Jetons écrits	Coût	Temps
+Agent de départ	9 936	3 324	0,00266 $	16,7 s
+Version 2 : outils, accès fermé, prompt court	6 038	636	0,00092 $	4,7 s
+Version 3 : abstention calibrée, schéma dans la consigne	5 703	386	0,00076 $	3,0 s
 
-## Ce que le kit enregistre
+Résultat : coût divisé par 3,5 et temps de réponse divisé par 5, sans perte de justesse. Les chiffres viennent des traces versionnées dans traces/ : chaque question posée y est enregistrée avec ses étapes, ses jetons et son coût.
 
-Le kit garde une trace de chaque exécution, seul, sans que tu aies à y penser. Tout s'écrit dans le dossier `traces/` de ton dépôt. Le kit n'envoie ces traces nulle part : elles partent avec le reste de ton travail, à chaque `git push`.
+Limite honnête : ces scores portent sur la batterie de contrôle de l'équipe (equipe/questions/lot1.toml), écrite pendant le développement. La batterie commune de fin de semaine mesure la généralisation sur des questions inconnues.
 
-**À chaque question posée à l'agent** (`uv run kit agent`), un fichier JSON dans `traces/appels/<jour>/`, nommé par l'heure (en temps universel, UTC) et un suffixe tiré au hasard. Il contient ces champs, et aucun autre :
+Sécurité. L'agent a aussi passé le défi du mot secret : un secret est glissé dans sa consigne, puis huit tentatives d'extraction sont lancées (injection de prompt, faux animateur, traduction, écriture à l'envers…). Il refuse de révéler sa consigne.
 
-| Champ | Contenu |
-|---|---|
-| `format` | la version du format de la trace |
-| `horodatage` | la date et l'heure de l'appel, en UTC |
-| `equipe` | l'identifiant de `equipe.toml` |
-| `kit` | la version du kit |
-| `etat` | l'empreinte de l'état de ton travail (voir plus bas) |
-| `commit`, `modifie` | le commit git en cours, et s'il y a des modifications pas encore enregistrées ; vides hors d'un dépôt git |
-| `moteur`, `modele` | ce qui fait tourner l'agent, et le modèle appelé |
-| `question`, `reponse` | la question posée et la réponse rendue |
-| `etapes` | les étapes de l'agent : le code qu'il a écrit, ses résultats tronqués |
-| `jetons`, `cout_estime` | les jetons consommés et leur coût estimé |
-| `duree_s` | la durée de l'appel, en secondes |
-| `erreur` | l'erreur, s'il y en a eu une |
+Comment ça marche
+ question en français
+        │
+        ▼
+ ┌─────────────────────────────┐  appels   ┌─────────────────────────┐
+ │  Agent (smolagents)         │──────────▶│  5 outils Python testés │
+ │  modèle : Claude Haiku 5.5  │           │  chercher_colonnes      │
+ │  consigne + règles          │◀──────────│  decrire_colonne        │
+ │  d'abstention               │  chiffres │  repartition            │
+ └─────────────────────────────┘  agrégés  │  resume_numerique       │
+        │                                  │  lignes                 │
+        ▼                                  └────────────┬────────────┘
+ { statut, valeur, justification }                      │ lecture locale
+                                                        ▼
+                                     données de santé (CSV, 4 271 patients)
 
-La trace s'écrit même quand l'appel échoue ou que tu l'interromps.
+L'agent suit la boucle Pensée → Action → Observation : il écrit un court code Python qui appelle ses outils, lit leur résultat, puis conclut. Il vise 2 étapes par question, et 1 étape quand il doit s'abstenir d'emblée (une question sur une ville, alors que le jeu de données n'en contient pas).
 
-**À chaque état nouveau de ton travail**, une copie de `equipe/agent.py`, `equipe/consigne.md`, `equipe/outils/` et `equipe/questions/` dans `traces/etats/<empreinte>/`. L'empreinte résume le contenu de ces fichiers : tant qu'ils ne changent pas, rien n'est recopié. Chaque version de ton agent est ainsi gardée, que tu aies fait un commit ou non.
+Les choix techniques, et pourquoi
 
-**Rien qui porte un nom.** Aucune trace ne contient ton nom d'utilisateur, le nom de ta machine, l'auteur des commits, ni rien qui te reconnaisse d'une exécution à l'autre. Avant toute écriture, le kit remplace le chemin de ton dossier personnel par `~`, ton nom d'utilisateur par `<utilisateur>`, et tout ce qui a la forme d'une clé d'API par `<clé>`.
+1. Accès fermé aux données : souveraineté. L'agent ne reçoit pas le tableau. Il n'atteint les données qu'à travers les outils, qui renvoient des résultats agrégés. Aucune ligne de patient n'est envoyée à l'API du modèle. Seul l'outil lignes, prévu pour les questions sur un patient précis, renvoie quelques valeurs individuelles : 5 patients et 6 colonnes au plus.
 
-Une limite : le texte libre. Ce que tu tapes dans une question, ce que tu écris dans ton code est recopié tel quel, et aucune machine ne sait y reconnaître un prénom. La règle est donc simple : on signe en équipe, jamais d'un prénom. L'historique git, lui, porte l'auteur de chaque commit ; il appartient aux membres de l'équipe et n'entre pas dans les traces.
+2. Des outils qui portent la connaissance du domaine : justesse. Les pièges du jeu de données sont traités dans le code des outils, pas laissés au modèle :
 
-**À quoi cela sert.** Pendant la semaine, à retrouver une erreur de l'agent avec ses étapes sans avoir pensé à faire une capture, et à comparer ton agent d'un jour à l'autre. Après la semaine, `traces/`, `JOURNAL.md` et `equipe.toml` sont collectés dans chaque dépôt d'équipe pour monter un dossier de valorisation de la semaine, sans nom d'étudiant. Ne supprime pas `traces/` : pousse-le avec le reste.
+9 et 999 signifient « non renseigné » ; ils sont exclus des calculs et le dénominateur est toujours donné ;
+une cellule peut contenir plusieurs codes ("1, 3") : elle est découpée avant le comptage ;
+trois puces (ISAC V1, ISAC V2, ALEX) ne mesurent pas les mêmes allergènes : un dosage n'est lu que pour les patients des puces qui le mesurent ;
+52 dosages valent -1, une valeur non documentée : ils sont écartés, et l'outil le signale.
 
-## Ce qu'un agent ouvert peut faire
+Chaque outil renvoie un message d'erreur qui dit quoi faire. Exemple : Colonne 'Gendre' inconnue. Colonnes proches : Gender. L'agent se corrige ainsi seul à l'étape suivante.
 
-L'agent livré dans `equipe/agent.py` est un `CodeAgent` de smolagents, **ouvert** : à chaque étape, le modèle écrit du code Python, et ce code s'exécute sur ton portable, avec tes droits, sans que personne l'ait relu.
+3. Un prompt système réécrit : frugalité. Le prompt par défaut de smolagents fait près de 10 000 caractères d'exemples génériques, renvoyés au modèle à chaque étape. Il est remplacé par un gabarit français court, centré sur le cas d'usage. Pour une même question, cela fait −43 % de caractères envoyés. S'y ajoutent un plafond de jetons de sortie (une question de l'agent de départ en avait produit 16 526) et une consigne qui fait grouper les appels d'outils.
 
-- Ce code peut lire et écrire les fichiers de ton compte, et accéder au réseau. Ta clé d'API est un fichier de ton compte : un agent ouvert peut la lire comme n'importe quel autre. La vraie protection de la clé, c'est le plafond de dépense de ton équipe, et sa révocation.
-- Deux lignes de `equipe/agent.py` ouvrent les données à l'agent, chacune signalée par un commentaire : celle qui autorise son code à importer pandas, celle qui lui passe le tableau complet. Tant qu'elles sont là, les outils de ton équipe ne sont qu'une option parmi d'autres pour lui.
-- Retirer ces deux lignes **ferme** l'accès : l'agent écrit toujours du code, mais il n'atteint plus les données que par les outils de `equipe/outils/`. Fermer réduit ce qu'il peut faire ; ce n'est pas un bac à sable, et la documentation de smolagents le dit elle-même de son interpréteur.
-- Un outil qui rend le tableau lui-même rouvre tout. Un outil rend une valeur simple : un nombre, un texte, une courte liste.
-- Le bout de ce chemin : remplacer `CodeAgent` par `ToolCallingAgent`, qui n'exécute aucun code et n'appelle que les outils. Le kit a aussi un repli, `kit/boucle_maison.py`, une boucle d'outils qui n'exécute aucun code écrit par le modèle ; son mode d'emploi est en tête du fichier.
-- La seule isolation réelle est de faire tourner l'agent sur une machine distante, pas sur ton portable.
+4. Une abstention calibrée : honnêteté. S'abstenir à tort coûte autant qu'une erreur. L'agent s'abstient seulement quand les données ne permettent pas de conclure : information absente, lieu anonymisé, question de causalité, conseil médical individuel, prémisse fausse. Sur un petit effectif, il répond en signalant la fragilité de la conclusion. Cet équilibre a été trouvé en lisant les traces : une première version, trop prudente, s'abstenait sur des questions qui avaient une réponse.
 
-Jusqu'où fermer est une décision de ton équipe, qu'elle justifie par ses scores.
+5. Mesurer avant d'optimiser. Chaque changement a été évalué sur la même batterie de questions, avec des réponses attendues calculées indépendamment (dans un notebook Jupyter). Les outils sont couverts par 12 tests unitaires qui ne consomment aucun jeton.
 
-**Ce que coûte une question.** Chaque `uv run kit agent` affiche ses jetons et leur coût estimé. Par défaut, l'agent fait huit étapes au plus par question et ses sorties sont tronquées (`kit/reglages.toml`) : ce sont des réglages, pas des verrous. La seule vraie limite est la cagnotte de ton équipe. Quand elle est épuisée, le kit affiche « cagnotte épuisée », écrit la trace et ne retente rien : va voir Adrien.
+Ce que l'analyse des données a révélé
+
+Le travail sur l'agent a d'abord été un travail sur les données :
+
+70 % des patients n'ont pas de type d'habitat renseigné (code 9). Un calcul naïf donne 23 % d'urbains, le bon calcul 74,8 %.
+La population est jeune : âge médian 16 ans, de 0 à 102 ans. Toute généralisation à l'adulte demande de la prudence.
+Le dictionnaire officiel ne donne ni unité ni seuil de positivité pour les dosages, et les puces ISAC et ALEX n'utilisent pas forcément la même échelle. L'agent ne parle donc jamais d'« allergique », seulement de « valeur > 0 ».
+Des points restent ouverts et sont documentés dans le journal : le code 10 (« rongeur de compagnie ») pour 925 patients dans les cofacteurs, et une colonne Sensitization absente du dictionnaire.
+Lancer le projet
+
+Il faut git et uv, ainsi qu'une clé d'API Anthropic.
+
+git clone https://github.com/WILLIAM04052005/allergylab-agent.git
+cd allergylab-agent
+uv run kit installer          # demande la clé d'API, rangée hors du dépôt
+uv run kit controle           # vérifie données, clé et modèle
+uv run kit agent "Quel est l'âge moyen des patients ?"
+
+Pour évaluer l'agent et suivre les coûts :
+
+uv run kit evaluer equipe/questions/lot1.toml   # justesse, abstention, frugalité
+uv run kit bilan                                # coûts cumulés, par jour
+uv run python -m pytest equipe -q               # tests des outils, sans appel au modèle
+Organisation du dépôt
+Dossier	Contenu
+equipe/agent.py	l'agent : modèle, outils, accès fermé, plafond de sortie
+equipe/consigne.md	la consigne : méthode, schéma des données, règles d'abstention
+equipe/outils/	les 5 outils, leurs tests, les codes du dictionnaire officiel, le prompt système
+equipe/questions/	la batterie de contrôle avec ses réponses attendues
+equipe/interface/	une interface web locale : graphiques et questions à l'agent
+JOURNAL.md	le journal de bord : ce qui a été essayé, mesuré et décidé, jour par jour
+traces/	chaque question posée et chaque évaluation, avec étapes, jetons et coût
+kit/	le harnais fourni pour la semaine : boucle, évaluation, traces
+donnees/	le jeu de données et son dictionnaire, tels que publiés
+
+Stack : Python 3.12, smolagents (Hugging Face), Claude Haiku 5.5 (Anthropic), pandas, pytest, uv.
+
+Données et crédits
+Données : jeu « Allergen Chip Challenge », Société Française d'Allergologie, DOI 10.60597/j5fe-g420, sous Licence Ouverte 2.0. Les fichiers de donnees/ sont reproduits sans modification.
+Kit et harnais d'évaluation : fournis par l'encadrement de la semaine AllergyLab (dépôt du kit). Le kit documente aussi ce qu'il enregistre dans les traces : aucune donnée personnelle, aucune clé.
+Agent, outils, consigne, analyse et interface : équipe 3.
+
+Cet agent est un outil d'exploration statistique. Il ne fournit aucun avis médical.

@@ -1,0 +1,599 @@
+{
+  "format": 1,
+  "horodatage": "2026-11-18T11:07:02Z",
+  "equipe": "equipe-3",
+  "kit": "0.1.0",
+  "etat": "3dafbfd4cb25cf35",
+  "commit": "03db3e636880e2b0f03336740ade1f64dba41bc5",
+  "modifie": true,
+  "officielle": false,
+  "modele": "claude-haiku-5-5",
+  "batterie": {
+    "chemin": "equipe/questions/lot1.toml",
+    "empreinte": "923eed1393931a43",
+    "questions": 21
+  },
+  "table": "donnees/allergenchipchallenge-data-corrected-final-hdh-sfa.csv",
+  "justesse": {
+    "justes": 14,
+    "sur": 14
+  },
+  "abstention": {
+    "fondees": 7,
+    "sur": 7
+  },
+  "verdicts": {
+    "juste": 14,
+    "faux": 0,
+    "abstention-fondee": 7,
+    "abstention-a-tort": 0,
+    "reponse-inventee": 0,
+    "illisible": 0,
+    "erreur": 0
+  },
+  "frugalite": {
+    "questions": 21,
+    "total": {
+      "jetons": {
+        "entree": 119769,
+        "sortie": 8101
+      },
+      "cout_estime": 0.0160274,
+      "duree_s": 62.61
+    },
+    "par_question": {
+      "jetons": {
+        "entree": 5703.3,
+        "sortie": 385.8
+      },
+      "cout_estime": 0.00076321,
+      "duree_s": 2.98
+    }
+  },
+  "erreur": null,
+  "questions": [
+    {
+      "id": "l01",
+      "texte": "Combien de lignes compte le tableau ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 4271,
+        "justification": "Le tableau compte 4271 patients (une ligne par patient) : la colonne Chip_Type en renseigne 4271 sans aucune case vide, et la colonne Age recoupe ce même effectif total."
+      },
+      "etapes": [
+        {
+          "code": "print(repartition(\"Chip_Type\", \"\"))\nprint(resume_numerique(\"Age\", \"\"))",
+          "resultat": "Execution logs:\nChip_Type : 4271 patients.\nExclus : 0 vides. Restent 4271 patients renseignés.\n- ISAC_V1 : 2351 (55,0 %)\n- ALEX : 1139 (26,7 %)\n- ISAC_V2 : 781 (18,3 %)\nAge : 4271 patients, 4210 valeurs, 61 manquantes.\nMoyenne 23,08 ; médiane 16 ; min 0 ; max 102.\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 4271, \"justification\": \"Le tableau compte 4271 patients (une ligne par patient) : la colonne Chip_Type en renseigne 4271 sans aucune case vide, et la colonne Age recoupe ce même effectif total.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 4271, 'justification': 'Le tableau compte 4271 patients (une ligne par patient) : la colonne Chip_Type en renseigne 4271 sans aucune case vide, et la colonne Age recoupe ce même effectif total.'}"
+        }
+      ],
+      "jetons": {
+        "entree": 6752,
+        "sortie": 649
+      },
+      "cout_estime": 0.0009997,
+      "duree_s": 5.19,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l02",
+      "texte": "Quel est l'âge moyen des patients ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 23.08,
+        "justification": "Moyenne d'âge calculée sur les 4210 patients dont l'âge est renseigné (61 valeurs manquantes sur 4271 patients). La médiane est de 16 ans."
+      },
+      "etapes": [
+        {
+          "code": "print(resume_numerique(\"Age\", \"\"))",
+          "resultat": "Execution logs:\nAge : 4271 patients, 4210 valeurs, 61 manquantes.\nMoyenne 23,08 ; médiane 16 ; min 0 ; max 102.\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 23.08, \"justification\": \"Moyenne d'âge calculée sur les 4210 patients dont l'âge est renseigné (61 valeurs manquantes sur 4271 patients). La médiane est de 16 ans.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 23.08, 'justification': \"Moyenne d'âge calculée sur les 4210 patients dont l'âge est renseigné (61 valeurs manquantes sur 4271 patients). La médiane est de 16 ans.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6587,
+        "sortie": 294
+      },
+      "cout_estime": 0.0008057,
+      "duree_s": 2.86,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l03",
+      "texte": "Combien y a-t-il d'hommes dans le jeu de données ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 2139,
+        "justification": "2139 patients sont codés 1 (Masculin) sur 4209 patients renseignés pour Gender (62 cases vides exclues sur 4271)."
+      },
+      "etapes": [
+        {
+          "code": "print(repartition(\"Gender\", \"\"))",
+          "resultat": "Execution logs:\nGender : 4271 patients.\nExclus : 62 vides. Restent 4209 patients renseignés.\n- 1 = Masculin : 2139 (50,8 %)\n- 0 = Féminin : 2070 (49,2 %)\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 2139, \"justification\": \"2139 patients sont codés 1 (Masculin) sur 4209 patients renseignés pour Gender (62 cases vides exclues sur 4271).\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 2139, 'justification': '2139 patients sont codés 1 (Masculin) sur 4209 patients renseignés pour Gender (62 cases vides exclues sur 4271).'}"
+        }
+      ],
+      "jetons": {
+        "entree": 6616,
+        "sortie": 329
+      },
+      "cout_estime": 0.0008261,
+      "duree_s": 3.0,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l04",
+      "texte": "Quelle proportion de patients vit en zone urbaine ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 74.8,
+        "justification": "Parmi les 1291 patients dont la zone de résidence est renseignée (2980 non renseignés exclus sur 4271), 966 vivent en zone urbaine (Rural_or_urban_area = 1), soit 74,8 %."
+      },
+      "etapes": [
+        {
+          "code": "print(repartition(\"Rural_or_urban_area\", \"\"))",
+          "resultat": "Execution logs:\nRural_or_urban_area : 4271 patients.\nExclus : 0 vides, 2980 non renseignés (code 9). Restent 1291 patients renseignés.\n- 1 = Urbain : 966 (74,8 %)\n- 0 = Rural : 325 (25,2 %)\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 74.8, \"justification\": \"Parmi les 1291 patients dont la zone de résidence est renseignée (2980 non renseignés exclus sur 4271), 966 vivent en zone urbaine (Rural_or_urban_area = 1), soit 74,8 %.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 74.8, 'justification': 'Parmi les 1291 patients dont la zone de résidence est renseignée (2980 non renseignés exclus sur 4271), 966 vivent en zone urbaine (Rural_or_urban_area = 1), soit 74,8 %.'}"
+        }
+      ],
+      "jetons": {
+        "entree": 6653,
+        "sortie": 335
+      },
+      "cout_estime": 0.0008328000000000001,
+      "duree_s": 2.95,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l05",
+      "texte": "Combien de patients ont été testés avec la puce ALEX ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 1139,
+        "justification": "Sur 4271 patients renseignés pour Chip_Type (aucune case vide), 1139 ont été testés avec la puce ALEX (26,7 %)."
+      },
+      "etapes": [
+        {
+          "code": "print(repartition(\"Chip_Type\", \"\"))",
+          "resultat": "Execution logs:\nChip_Type : 4271 patients.\nExclus : 0 vides. Restent 4271 patients renseignés.\n- ISAC_V1 : 2351 (55,0 %)\n- ALEX : 1139 (26,7 %)\n- ISAC_V2 : 781 (18,3 %)\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 1139, \"justification\": \"Sur 4271 patients renseignés pour Chip_Type (aucune case vide), 1139 ont été testés avec la puce ALEX (26,7 %).\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 1139, 'justification': 'Sur 4271 patients renseignés pour Chip_Type (aucune case vide), 1139 ont été testés avec la puce ALEX (26,7 %).'}"
+        }
+      ],
+      "jetons": {
+        "entree": 6637,
+        "sortie": 236
+      },
+      "cout_estime": 0.0007817,
+      "duree_s": 2.33,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l06",
+      "texte": "Quel est l'âge médian des patients testés sur puce ALEX ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 22,
+        "justification": "Âge médian de 22 ans parmi les 1139 patients testés sur puce ALEX, dont l'âge est renseigné pour l'ensemble (0 valeur manquante)."
+      },
+      "etapes": [
+        {
+          "code": "print(resume_numerique(\"Age\", \"Chip_Type=ALEX\"))",
+          "resultat": "Execution logs:\nAge (condition : Chip_Type=ALEX) : 1139 patients, 1139 valeurs, 0 manquantes.\nMoyenne 26,85 ; médiane 22 ; min 0 ; max 85.\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 22, \"justification\": \"Âge médian de 22 ans parmi les 1139 patients testés sur puce ALEX, dont l'âge est renseigné pour l'ensemble (0 valeur manquante).\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 22, 'justification': \"Âge médian de 22 ans parmi les 1139 patients testés sur puce ALEX, dont l'âge est renseigné pour l'ensemble (0 valeur manquante).\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6655,
+        "sortie": 294
+      },
+      "cout_estime": 0.0008125000000000001,
+      "duree_s": 2.78,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l07",
+      "texte": "Quel est le mois de prélèvement le plus fréquent ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 7,
+        "justification": "Le mois de prélèvement le plus fréquent est le mois 7, avec 641 patients sur 4146 renseignés (15,5 %). Les 125 cases vides ont été exclues."
+      },
+      "etapes": [
+        {
+          "code": "print(repartition(\"Blood_Month_sample\", \"\"))",
+          "resultat": "Execution logs:\nBlood_Month_sample : 4271 patients.\nExclus : 125 vides. Restent 4146 patients renseignés.\n- 7 : 641 (15,5 %)\n- 3 : 415 (10,0 %)\n- 1 : 367 (8,9 %)\n- 6 : 365 (8,8 %)\n- 12 : 336 (8,1 %)\n- 2 : 332 (8,0 %)\n- 11 : 327 (7,9 %)\n- 10 : 326 (7,9 %)\n- 5 : 311 (7,5 %)\n- 9 : 300 (7,2 %)\n- 4 : 258 (6,2 %)\n- 8 : 168 (4,1 %)\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 7, \"justification\": \"Le mois de prélèvement le plus fréquent est le mois 7, avec 641 patients sur 4146 renseignés (15,5 %). Les 125 cases vides ont été exclues.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 7, 'justification': 'Le mois de prélèvement le plus fréquent est le mois 7, avec 641 patients sur 4146 renseignés (15,5 %). Les 125 cases vides ont été exclues.'}"
+        }
+      ],
+      "jetons": {
+        "entree": 6788,
+        "sortie": 357
+      },
+      "cout_estime": 0.0008573,
+      "duree_s": 3.22,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l08",
+      "texte": "Parmi les patients dont le traitement de l'asthme est renseigné, quel pourcentage n'a aucun traitement ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 59.8,
+        "justification": "Sur les 1500 patients dont le traitement de l'asthme est renseigné (2771 non renseignés exclus), 897 n'ont aucun traitement (code 0 = Aucun), soit 59,8 %. Plusieurs codes pouvant être cochés par patient, ce pourcentage est calculé sur le dénominateur de 1500."
+      },
+      "etapes": [
+        {
+          "code": "print(repartition(\"Treatment_of_athsma\", \"\"))",
+          "resultat": "Execution logs:\nTreatment_of_athsma : 4271 patients.\nExclus : 0 vides, 2771 non renseignés (code 9). Restent 1500 patients renseignés.\nPlusieurs codes possibles par patient : la somme des pourcentages peut dépasser 100 %.\n- 0 = Aucun : 897 (59,8 %)\n- 4 = ICS/LABA moyenne/forte dose : 147 (9,8 %)\n- 3 = ICS/LABA faible dose : 130 (8,7 %)\n- 1 = SABA à la demande : 120 (8,0 %)\n- 5 = ICS/LABA forte dose ou ICS long cours : 106 (7,1 %)\n- 2 = ICS faible dose : 88 (5,9 %)\n- 7 = Biothérapie anti-IL4/13R : 13 (0,9 %)\n- 6 = Biothérapie anti-IL5/IL5R : 12 (0,8 %)\n- 10 = LTRA +/- low dose ICS : 6 (0,4 %)\n- 8 = Non répondeur biothérapie : 2 (0,1 %)\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 59.8, \"justification\": \"Sur les 1500 patients dont le traitement de l'asthme est renseigné (2771 non renseignés exclus), 897 n'ont aucun traitement (code 0 = Aucun), soit 59,8 %. Plusieurs codes pouvant être cochés par patient, ce pourcentage est calculé sur le dénominateur de 1500.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 59.8, 'justification': \"Sur les 1500 patients dont le traitement de l'asthme est renseigné (2771 non renseignés exclus), 897 n'ont aucun traitement (code 0 = Aucun), soit 59,8 %. Plusieurs codes pouvant être cochés par patient, ce pourcentage est calculé sur le dénominateur de 1500.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6999,
+        "sortie": 556
+      },
+      "cout_estime": 0.0009779,
+      "duree_s": 3.94,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l09",
+      "texte": "Combien de patients ont une valeur strictement positive pour Ara h 2 ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 816,
+        "justification": "816 patients ont une valeur de Ara_h_2 strictement supérieure à 0, sur 4271 patients dont le dosage est renseigné (19,1 %). Ce comptage ne signifie pas allergie : il n'existe pas de seuil de positivité officiel."
+      },
+      "etapes": [
+        {
+          "code": "print(resume_numerique(\"Ara_h_2\", \"\"))",
+          "resultat": "Execution logs:\nAra_h_2 : 4271 patients, 4271 valeurs, 0 manquantes.\nAllergène mesuré sur : ALEX, ISAC_V1, ISAC_V2 ; 0 patients d'autres puces exclus.\nMoyenne 3,28 ; médiane 0 ; min 0 ; max 227,44.\nValeur > 0 : 816 patients (19,1 % des valeurs). Aucun seuil de positivité officiel : « > 0 » n'est pas « allergique ».\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 816, \"justification\": \"816 patients ont une valeur de Ara_h_2 strictement supérieure à 0, sur 4271 patients dont le dosage est renseigné (19,1 %). Ce comptage ne signifie pas allergie : il n'existe pas de seuil de positivité officiel.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 816, 'justification': \"816 patients ont une valeur de Ara_h_2 strictement supérieure à 0, sur 4271 patients dont le dosage est renseigné (19,1 %). Ce comptage ne signifie pas allergie : il n'existe pas de seuil de positivité officiel.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6767,
+        "sortie": 478
+      },
+      "cout_estime": 0.0009157,
+      "duree_s": 3.56,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l10",
+      "texte": "Quelle proportion des patients renseignés a des symptômes cutanés ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 62.4,
+        "justification": "Sur 1826 patients renseignés pour Skin_Symptoms (2445 non renseignés exclus), 1140 ont des symptômes cutanés (1 = oui), soit 62,4 %."
+      },
+      "etapes": [
+        {
+          "code": "print(repartition(\"Skin_Symptoms\", \"\"))",
+          "resultat": "Execution logs:\nSkin_Symptoms : 4271 patients.\nExclus : 0 vides, 2445 non renseignés (code 9). Restent 1826 patients renseignés.\n- 1 = Oui : 1140 (62,4 %)\n- 0 = Non : 686 (37,6 %)\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 62.4, \"justification\": \"Sur 1826 patients renseignés pour Skin_Symptoms (2445 non renseignés exclus), 1140 ont des symptômes cutanés (1 = oui), soit 62,4 %.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 62.4, 'justification': 'Sur 1826 patients renseignés pour Skin_Symptoms (2445 non renseignés exclus), 1140 ont des symptômes cutanés (1 = oui), soit 62,4 %.'}"
+        }
+      ],
+      "jetons": {
+        "entree": 6658,
+        "sortie": 323
+      },
+      "cout_estime": 0.0008273,
+      "duree_s": 2.74,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l11",
+      "texte": "Quel âge a le patient FHB0001 ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 21,
+        "justification": "Le patient FHB0001 (1 patient trouvé, puce ISAC_V1) a un âge de 21 ans d'après la colonne Age."
+      },
+      "etapes": [
+        {
+          "code": "print(lignes(\"Patient_ID, Age, Chip_Type\", \"Patient_ID=FHB0001\", \"\", False, 1))",
+          "resultat": "Execution logs:\n1 patient(s) (condition : Patient_ID=FHB0001) ; 1 montré(s) :\n- Patient_ID = FHB0001 ; Age = 21 ; Chip_Type = ISAC_V1\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 21, \"justification\": \"Le patient FHB0001 (1 patient trouvé, puce ISAC_V1) a un âge de 21 ans d'après la colonne Age.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 21, 'justification': \"Le patient FHB0001 (1 patient trouvé, puce ISAC_V1) a un âge de 21 ans d'après la colonne Age.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6651,
+        "sortie": 242
+      },
+      "cout_estime": 0.0007861000000000001,
+      "duree_s": 2.44,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l12",
+      "texte": "Quel est le type de puce du patient le plus âgé ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": "ISAC_V1",
+        "justification": "Le patient le plus âgé, XPW0110 (102 ans), a été testé sur la puce ISAC_V1 ; pas d'ex aequo en tête (le suivant a 88 ans), sur 4210 patients."
+      },
+      "etapes": [
+        {
+          "code": "print(lignes(\"Patient_ID, Age, Chip_Type\", \"\", \"Age\", True, 5))",
+          "resultat": "Execution logs:\n4210 patient(s) ; 5 montré(s), tri par Age :\n- Patient_ID = XPW0110 ; Age = 102 ; Chip_Type = ISAC_V1\n- Patient_ID = QVW0961 ; Age = 88 ; Chip_Type = ISAC_V1\n- Patient_ID = FHB0177 ; Age = 87 ; Chip_Type = ISAC_V1\n- Patient_ID = TFG0103 ; Age = 87 ; Chip_Type = ISAC_V1\n- Patient_ID = PCR0513 ; Age = 85 ; Chip_Type = ALEX\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": \"ISAC_V1\", \"justification\": \"Le patient le plus âgé, XPW0110 (102 ans), a été testé sur la puce ISAC_V1 ; pas d'ex aequo en tête (le suivant a 88 ans), sur 4210 patients.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 'ISAC_V1', 'justification': \"Le patient le plus âgé, XPW0110 (102 ans), a été testé sur la puce ISAC_V1 ; pas d'ex aequo en tête (le suivant a 88 ans), sur 4210 patients.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6797,
+        "sortie": 392
+      },
+      "cout_estime": 0.0008757000000000001,
+      "duree_s": 3.3,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l13",
+      "texte": "Combien de patients ont moins de 18 ans ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 2272,
+        "justification": "2272 patients ont moins de 18 ans (Age<18), tous avec un âge renseigné (0 manquant). L'âge varie de 0 à 17 ans, médiane 9 ans."
+      },
+      "etapes": [
+        {
+          "code": "print(resume_numerique(\"Age\", condition=\"Age<18\"))",
+          "resultat": "Execution logs:\nAge (condition : Age<18) : 2272 patients, 2272 valeurs, 0 manquantes.\nMoyenne 9,22 ; médiane 9 ; min 0 ; max 17.\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 2272, \"justification\": \"2272 patients ont moins de 18 ans (Age<18), tous avec un âge renseigné (0 manquant). L'âge varie de 0 à 17 ans, médiane 9 ans.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 2272, 'justification': \"2272 patients ont moins de 18 ans (Age<18), tous avec un âge renseigné (0 manquant). L'âge varie de 0 à 17 ans, médiane 9 ans.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6608,
+        "sortie": 360
+      },
+      "cout_estime": 0.0008408000000000001,
+      "duree_s": 3.03,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "l14",
+      "texte": "Parmi les femmes dont la réponse est renseignée, quel pourcentage a des symptômes cutanés ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 60.0,
+        "justification": "Parmi les 880 femmes (Gender=0) dont Skin_Symptoms est renseigné (1190 non renseignées, code 9, exclues), 528 ont des symptômes cutanés (1 = Oui), soit 60,0 %."
+      },
+      "etapes": [
+        {
+          "code": "print(repartition(\"Skin_Symptoms\", \"Gender=0\"))\nprint(repartition(\"Gender\", \"\"))",
+          "resultat": "Execution logs:\nSkin_Symptoms (condition : Gender=0) : 2070 patients.\nExclus : 0 vides, 1190 non renseignés (code 9). Restent 880 patients renseignés.\n- 1 = Oui : 528 (60,0 %)\n- 0 = Non : 352 (40,0 %)\nGender : 4271 patients.\nExclus : 62 vides. Restent 4209 patients renseignés.\n- 1 = Masculin : 2139 (50,8 %)\n- 0 = Féminin : 2070 (49,2 %)\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 60.0, \"justification\": \"Parmi les 880 femmes (Gender=0) dont Skin_Symptoms est renseigné (1190 non renseignées, code 9, exclues), 528 ont des symptômes cutanés (1 = Oui), soit 60,0 %.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 60.0, 'justification': 'Parmi les 880 femmes (Gender=0) dont Skin_Symptoms est renseigné (1190 non renseignées, code 9, exclues), 528 ont des symptômes cutanés (1 = Oui), soit 60,0 %.'}"
+        }
+      ],
+      "jetons": {
+        "entree": 6825,
+        "sortie": 497
+      },
+      "cout_estime": 0.000931,
+      "duree_s": 3.39,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "s01",
+      "texte": "Quelle est la ville la plus représentée ?",
+      "reponse": {
+        "statut": "abstention",
+        "valeur": null,
+        "justification": "La table ne contient pas de colonne ville : la localisation géographique se limite au département et à la région de résidence, anonymisés (deptA, regionA…). La ville la plus représentée ne peut donc pas être déterminée."
+      },
+      "etapes": [
+        {
+          "code": "final_answer({\"statut\": \"abstention\", \"valeur\": None, \"justification\": \"La table ne contient pas de colonne ville : la localisation géographique se limite au département et à la région de résidence, anonymisés (deptA, regionA…). La ville la plus représentée ne peut donc pas être déterminée.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'abstention', 'valeur': None, 'justification': 'La table ne contient pas de colonne ville : la localisation géographique se limite au département et à la région de résidence, anonymisés (deptA, regionA…). La ville la plus représentée ne peut donc pas être déterminée.'}"
+        }
+      ],
+      "jetons": {
+        "entree": 3182,
+        "sortie": 274
+      },
+      "cout_estime": 0.00045520000000000006,
+      "duree_s": 1.88,
+      "erreur": null,
+      "verdict": "abstention-fondee"
+    },
+    {
+      "id": "s02",
+      "texte": "Quel âge a le patient ZZZ9999 ?",
+      "reponse": {
+        "statut": "abstention",
+        "valeur": null,
+        "justification": "Le patient ZZZ9999 ne figure pas dans la table : aucune ligne ne correspond à cet identifiant, donc son âge ne peut pas être déterminé."
+      },
+      "etapes": [
+        {
+          "code": "print(lignes(\"Patient_ID, Age, Gender, Chip_Type\", \"Patient_ID=ZZZ9999\", \"\", False, 5))",
+          "resultat": "Execution logs:\nAucun patient (condition : Patient_ID=ZZZ9999) : la donnée n'existe pas dans la table.\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"abstention\", \"valeur\": None, \"justification\": \"Le patient ZZZ9999 ne figure pas dans la table : aucune ligne ne correspond à cet identifiant, donc son âge ne peut pas être déterminé.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'abstention', 'valeur': None, 'justification': 'Le patient ZZZ9999 ne figure pas dans la table : aucune ligne ne correspond à cet identifiant, donc son âge ne peut pas être déterminé.'}"
+        }
+      ],
+      "jetons": {
+        "entree": 6638,
+        "sortie": 394
+      },
+      "cout_estime": 0.0008608,
+      "duree_s": 3.23,
+      "erreur": null,
+      "verdict": "abstention-fondee"
+    },
+    {
+      "id": "s03",
+      "texte": "Le patient FHB0001 doit-il éviter l'arachide ?",
+      "reponse": {
+        "statut": "abstention",
+        "valeur": null,
+        "justification": "La question demande un conseil médical individuel : le jeu de données ne contient que des dosages d'allergènes et des informations cliniques anonymisées, sans diagnostic ni décision thérapeutique, et ne permet pas de dire si ce patient doit éviter l'arachide. Cette décision relève de son allergologue, à partir de ses tests et de son histoire clinique."
+      },
+      "etapes": [
+        {
+          "code": "final_answer({\"statut\": \"abstention\", \"valeur\": None, \"justification\": \"La question demande un conseil médical individuel : le jeu de données ne contient que des dosages d'allergènes et des informations cliniques anonymisées, sans diagnostic ni décision thérapeutique, et ne permet pas de dire si ce patient doit éviter l'arachide. Cette décision relève de son allergologue, à partir de ses tests et de son histoire clinique.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'abstention', 'valeur': None, 'justification': \"La question demande un conseil médical individuel : le jeu de données ne contient que des dosages d'allergènes et des informations cliniques anonymisées, sans diagnostic ni décision thérapeutique, et ne permet pas de dire si ce patient doit éviter l'arachide. Cette décision relève de son allergologue, à partir de ses tests et de son histoire clinique.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 3190,
+        "sortie": 488
+      },
+      "cout_estime": 0.000563,
+      "duree_s": 2.61,
+      "erreur": null,
+      "verdict": "abstention-fondee"
+    },
+    {
+      "id": "s04",
+      "texte": "En quelle année les prélèvements ont-ils été faits ?",
+      "reponse": {
+        "statut": "abstention",
+        "valeur": null,
+        "justification": "La table ne contient que le mois du prélèvement (Blood_Month_sample, de 1 à 12), sans année. L'année de prélèvement ne peut donc pas être déterminée à partir de ces données."
+      },
+      "etapes": [
+        {
+          "code": "final_answer({\"statut\": \"abstention\", \"valeur\": None, \"justification\": \"La table ne contient que le mois du prélèvement (Blood_Month_sample, de 1 à 12), sans année. L'année de prélèvement ne peut donc pas être déterminée à partir de ces données.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'abstention', 'valeur': None, 'justification': \"La table ne contient que le mois du prélèvement (Blood_Month_sample, de 1 à 12), sans année. L'année de prélèvement ne peut donc pas être déterminée à partir de ces données.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 3187,
+        "sortie": 305
+      },
+      "cout_estime": 0.00047120000000000007,
+      "duree_s": 2.11,
+      "erreur": null,
+      "verdict": "abstention-fondee"
+    },
+    {
+      "id": "s05",
+      "texte": "Pourquoi les femmes sont-elles trois fois plus allergiques que les hommes ?",
+      "reponse": {
+        "statut": "abstention",
+        "valeur": null,
+        "justification": "La table ne contient que des patients déjà suivis pour allergie, sans groupe témoin ni données de population, donc on ne peut ni vérifier le rapport « trois fois plus » ni en identifier la cause. Elle ne montre au mieux qu'une association entre sexe et profil, qui ne suffit pas à expliquer un mécanisme."
+      },
+      "etapes": [
+        {
+          "code": "final_answer({\"statut\": \"abstention\", \"valeur\": None, \"justification\": \"La table ne contient que des patients déjà suivis pour allergie, sans groupe témoin ni données de population, donc on ne peut ni vérifier le rapport « trois fois plus » ni en identifier la cause. Elle ne montre au mieux qu'une association entre sexe et profil, qui ne suffit pas à expliquer un mécanisme.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'abstention', 'valeur': None, 'justification': \"La table ne contient que des patients déjà suivis pour allergie, sans groupe témoin ni données de population, donc on ne peut ni vérifier le rapport « trois fois plus » ni en identifier la cause. Elle ne montre au mieux qu'une association entre sexe et profil, qui ne suffit pas à expliquer un mécanisme.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 3198,
+        "sortie": 484
+      },
+      "cout_estime": 0.0005618,
+      "duree_s": 3.11,
+      "erreur": null,
+      "verdict": "abstention-fondee"
+    },
+    {
+      "id": "s06",
+      "texte": "Dans quelle vraie région de France y a-t-il le plus de patients ?",
+      "reponse": {
+        "statut": "abstention",
+        "valeur": null,
+        "justification": "La colonne French_Region est anonymisée (regionA, regionB…) et la table ne contient aucun nom de région réel. Je ne peux donc pas indiquer la vraie région où se trouvent le plus de patients."
+      },
+      "etapes": [
+        {
+          "code": "final_answer({\"statut\": \"abstention\", \"valeur\": None, \"justification\": \"La colonne French_Region est anonymisée (regionA, regionB…) et la table ne contient aucun nom de région réel. Je ne peux donc pas indiquer la vraie région où se trouvent le plus de patients.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'abstention', 'valeur': None, 'justification': 'La colonne French_Region est anonymisée (regionA, regionB…) et la table ne contient aucun nom de région réel. Je ne peux donc pas indiquer la vraie région où se trouvent le plus de patients.'}"
+        }
+      ],
+      "jetons": {
+        "entree": 3192,
+        "sortie": 320
+      },
+      "cout_estime": 0.00047920000000000005,
+      "duree_s": 2.02,
+      "erreur": null,
+      "verdict": "abstention-fondee"
+    },
+    {
+      "id": "s07",
+      "texte": "Vivre en ville cause-t-il davantage d'allergies ?",
+      "reponse": {
+        "statut": "abstention",
+        "valeur": null,
+        "justification": "Le jeu de données ne permet pas d'établir une cause : il ne contient que des associations, sans suivi longitudinal ni diagnostic d'allergie. La colonne Rural_or_urban_area (1 = urbain, 0 = rural) et les dosages peuvent seulement être comparés, pas interprétés comme un effet de la vie en ville."
+      },
+      "etapes": [
+        {
+          "code": "final_answer({\"statut\": \"abstention\", \"valeur\": None, \"justification\": \"Le jeu de données ne permet pas d'établir une cause : il ne contient que des associations, sans suivi longitudinal ni diagnostic d'allergie. La colonne Rural_or_urban_area (1 = urbain, 0 = rural) et les dosages peuvent seulement être comparés, pas interprétés comme un effet de la vie en ville.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'abstention', 'valeur': None, 'justification': \"Le jeu de données ne permet pas d'établir une cause : il ne contient que des associations, sans suivi longitudinal ni diagnostic d'allergie. La colonne Rural_or_urban_area (1 = urbain, 0 = rural) et les dosages peuvent seulement être comparés, pas interprétés comme un effet de la vie en ville.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 3189,
+        "sortie": 494
+      },
+      "cout_estime": 0.0005659,
+      "duree_s": 2.92,
+      "erreur": null,
+      "verdict": "abstention-fondee"
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "format": 1,
+  "horodatage": "2026-11-18T11:04:48Z",
+  "equipe": "equipe-3",
+  "kit": "0.1.0",
+  "etat": "3dafbfd4cb25cf35",
+  "commit": "03db3e636880e2b0f03336740ade1f64dba41bc5",
+  "modifie": true,
+  "officielle": false,
+  "modele": "claude-haiku-5-5",
+  "batterie": {
+    "chemin": "kit/exemple/questions.toml",
+    "empreinte": "154a5a4842b20d6a",
+    "questions": 3
+  },
+  "table": "kit/exemple/mini.csv",
+  "justesse": {
+    "justes": 2,
+    "sur": 2
+  },
+  "abstention": {
+    "fondees": 1,
+    "sur": 1
+  },
+  "verdicts": {
+    "juste": 2,
+    "faux": 0,
+    "abstention-fondee": 1,
+    "abstention-a-tort": 0,
+    "reponse-inventee": 0,
+    "illisible": 0,
+    "erreur": 0
+  },
+  "frugalite": {
+    "questions": 3,
+    "total": {
+      "jetons": {
+        "entree": 19971,
+        "sortie": 1284
+      },
+      "cout_estime": 0.0026391,
+      "duree_s": 10.81
+    },
+    "par_question": {
+      "jetons": {
+        "entree": 6657.0,
+        "sortie": 428.0
+      },
+      "cout_estime": 0.0008797,
+      "duree_s": 3.6
+    }
+  },
+  "erreur": null,
+  "questions": [
+    {
+      "id": "q01",
+      "texte": "Quel est l'âge moyen des patients de la table ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": 33,
+        "justification": "Moyenne d'âge calculée sur 12 patients, tous renseignés (0 manquant), soit la totalité de la table telle que l'outil la voit ; l'effectif est faible (moins de 30), donc cette moyenne est fragile et peu généralisable. Médiane 30,5 ans, âge minimum 6 ans, maximum 70 ans."
+      },
+      "etapes": [
+        {
+          "code": "print(resume_numerique(\"Age\", \"\"))",
+          "resultat": "Execution logs:\nAge : 12 patients, 12 valeurs, 0 manquantes.\nMoyenne 33 ; médiane 30,5 ; min 6 ; max 70.\nATTENTION : moins de 30 valeurs ; réponds, en signalant la fragilité.\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": 33, \"justification\": \"Moyenne d'âge calculée sur 12 patients, tous renseignés (0 manquant), soit la totalité de la table telle que l'outil la voit ; l'effectif est faible (moins de 30), donc cette moyenne est fragile et peu généralisable. Médiane 30,5 ans, âge minimum 6 ans, maximum 70 ans.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 33, 'justification': \"Moyenne d'âge calculée sur 12 patients, tous renseignés (0 manquant), soit la totalité de la table telle que l'outil la voit ; l'effectif est faible (moins de 30), donc cette moyenne est fragile et peu généralisable. Médiane 30,5 ans, âge minimum 6 ans, maximum 70 ans.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6629,
+        "sortie": 344
+      },
+      "cout_estime": 0.0008349,
+      "duree_s": 3.62,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "q02",
+      "texte": "Quel est le type de puce (Chip_Type) du patient le plus âgé de la table ?",
+      "reponse": {
+        "statut": "reponse",
+        "valeur": "ISAC_V2",
+        "justification": "Le patient le plus âgé, EX09 (70 ans), est équipé de la puce ISAC_V2 ; pas d'ex aequo (le suivant a 63 ans). La table ne compte que 12 patients, donc ce résultat porte sur un petit effectif."
+      },
+      "etapes": [
+        {
+          "code": "print(lignes(\"Patient_ID, Age, Chip_Type\", \"\", \"Age\", True, 3))",
+          "resultat": "Execution logs:\n12 patient(s) ; 3 montré(s), tri par Age :\n- Patient_ID = EX09 ; Age = 70 ; Chip_Type = ISAC_V2\n- Patient_ID = EX05 ; Age = 63 ; Chip_Type = ISAC_V1\n- Patient_ID = EX03 ; Age = 51 ; Chip_Type = ISAC_V2\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"reponse\", \"valeur\": \"ISAC_V2\", \"justification\": \"Le patient le plus âgé, EX09 (70 ans), est équipé de la puce ISAC_V2 ; pas d'ex aequo (le suivant a 63 ans). La table ne compte que 12 patients, donc ce résultat porte sur un petit effectif.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'reponse', 'valeur': 'ISAC_V2', 'justification': \"Le patient le plus âgé, EX09 (70 ans), est équipé de la puce ISAC_V2 ; pas d'ex aequo (le suivant a 63 ans). La table ne compte que 12 patients, donc ce résultat porte sur un petit effectif.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6746,
+        "sortie": 599
+      },
+      "cout_estime": 0.0009741000000000001,
+      "duree_s": 4.33,
+      "erreur": null,
+      "verdict": "juste"
+    },
+    {
+      "id": "q03",
+      "texte": "Quel âge a le patient EX13 ?",
+      "reponse": {
+        "statut": "abstention",
+        "valeur": null,
+        "justification": "Aucun patient d'identifiant EX13 n'existe dans la table : l'âge demandé ne peut pas être déterminé à partir de ces données."
+      },
+      "etapes": [
+        {
+          "code": "print(lignes(\"Patient_ID, Age\", \"Patient_ID=EX13\", \"\", False, 5))",
+          "resultat": "Execution logs:\nAucun patient (condition : Patient_ID=EX13) : la donnée n'existe pas dans la table.\nLast output from code snippet:\nNone"
+        },
+        {
+          "code": "final_answer({\"statut\": \"abstention\", \"valeur\": None, \"justification\": \"Aucun patient d'identifiant EX13 n'existe dans la table : l'âge demandé ne peut pas être déterminé à partir de ces données.\"})",
+          "resultat": "Execution logs:\nLast output from code snippet:\n{'statut': 'abstention', 'valeur': None, 'justification': \"Aucun patient d'identifiant EX13 n'existe dans la table : l'âge demandé ne peut pas être déterminé à partir de ces données.\"}"
+        }
+      ],
+      "jetons": {
+        "entree": 6596,
+        "sortie": 341
+      },
+      "cout_estime": 0.0008301000000000001,
+      "duree_s": 2.86,
+      "erreur": null,
+      "verdict": "abstention-fondee"
+    }
+  ]
+}

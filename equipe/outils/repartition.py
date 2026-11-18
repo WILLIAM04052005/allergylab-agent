@@ -33,7 +33,7 @@ def repartition(colonne: str, condition: str = "") -> str:
     try:
         ligne = verifier_colonne(colonne)
         if colonne == "Patient_ID":
-            return "Refusé : Patient_ID est un identifiant individuel, il ne se compte pas et ne se divulgue pas."
+            return "Patient_ID est un identifiant : pour un patient précis, utilise lignes."
         if ligne["bloc"] == "dosage":
             return f"{colonne} est une colonne de dosage : utilise resume_numerique({colonne!r})."
         table, filtre = appliquer_condition(tableau(), condition)
@@ -63,5 +63,5 @@ def repartition(colonne: str, condition: str = "") -> str:
     if len(comptes) > MAX_VALEURS:
         lignes.append(f"… et {len(comptes) - MAX_VALEURS} autres valeurs.")
     if total < 30:
-        lignes.append("ATTENTION : moins de 30 patients renseignés, conclusion fragile.")
+        lignes.append("ATTENTION : moins de 30 patients renseignés ; réponds, en signalant la fragilité.")
     return "\n".join(lignes)

@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from kit import donnees
 from kit.donnees import charger, colonnes
 
 CODES = tomllib.loads((Path(__file__).parent / "codes.toml").read_text(encoding="utf-8"))
@@ -28,9 +29,17 @@ class ErreurOutil(ValueError):
 
 
 @cache
+def _charger(chemin):
+    return charger(chemin)
+
+
 def tableau():
-    """Le tableau, chargé une seule fois même si l'agent appelle plusieurs outils."""
-    return charger()
+    """Le tableau en cours, chargé une seule fois par fichier.
+
+    `uv run kit evaluer --exemple` remplace un moment le fichier publié par la
+    table inventée (donnees.en_cours) : on suit ce fichier-là, pas le premier lu.
+    """
+    return _charger(donnees.en_cours)
 
 
 @cache
@@ -41,8 +50,10 @@ def table_colonnes():
 def verifier_colonne(nom):
     """Rend la ligne de kit/colonnes.csv, ou lève une erreur qui propose des noms proches."""
     table = table_colonnes()
-    if nom in table.index:
+    if nom in table.index and nom in tableau().columns:
         return table.loc[nom]
+    if nom in table.index:
+        raise ErreurOutil(f"La colonne {nom!r} n'existe pas dans la table en cours.")
     import difflib
 
     proches = difflib.get_close_matches(nom, table.index.tolist(), n=3)

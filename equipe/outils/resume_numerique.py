@@ -64,5 +64,5 @@ def resume_numerique(colonne: str, condition: str = "") -> str:
             "Aucun seuil de positivité officiel : « > 0 » n'est pas « allergique »."
         )
     if len(valeurs) < 30:
-        lignes.append("ATTENTION : moins de 30 valeurs, conclusion fragile.")
+        lignes.append("ATTENTION : moins de 30 valeurs ; réponds, en signalant la fragilité.")
     return "\n".join(lignes)

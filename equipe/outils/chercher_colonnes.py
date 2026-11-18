@@ -2,7 +2,7 @@
 
 from smolagents import tool
 
-from equipe.outils.commun import table_colonnes
+from equipe.outils.commun import table_colonnes, tableau
 
 MAX_NOMS = 40
 
@@ -17,6 +17,7 @@ def chercher_colonnes(motif: str) -> str:
         motif: un morceau de nom, par exemple "ara_h" ou "treatment" ; vide pour les colonnes cliniques.
     """
     table = table_colonnes()
+    table = table[table.index.isin(tableau().columns)]  # seulement les colonnes de la table en cours
     if not motif.strip():
         noms = table.index[table["bloc"] == "clinique"].tolist()
         return "Colonnes cliniques : " + ", ".join(noms) + f". Puis {(table['bloc'] == 'dosage').sum()} colonnes de dosage."

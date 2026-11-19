@@ -1,3 +1,3 @@
-date,etat,lot,questions,score,jetons_entree_moy,jetons_sortie_moy,etapes_moy,duree_moy_s,cout_total_dollars
+jdate,etat,lot,questions,score,jetons_entree_moy,jetons_sortie_moy,etapes_moy,duree_moy_s,cout_total_dollars
 2026-11-17T14:08,f2ff2c4887177a07,lot1,3,3,4846,560,2.0,4.3,0.00229
 2026-11-17T14:12,f2ff2c4887177a07,lot1,17,17,6038,636,2.3,4.7,0.01567

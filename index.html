@@ -3,514 +3,215 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AllergyLab, équipe 3 : présentation du projet</title>
+<title>AllergyLab en 52 secondes</title>
 <link rel="icon" href="data:,">
 <style>
   /* Le film se joue sur une scène de 1920 × 1080, mise à l'échelle de la fenêtre.
      Rien n'est animé par la feuille de style : tout mouvement vient de l'horloge du script,
-     pour que chaque instant du film donne toujours la même image. */
+     pour que chaque instant du film donne toujours la même image.
+     Le montage suit la musique : 120 battements par minute, une mesure toutes les 2 secondes. */
   :root {
     --fond: #081114; --surface: #111F23; --creux: #172A2F; --trait: #25393E;
-    --encre: #E9F1EF; --sourdine: #8FA5A8; --plot: #3DF0C2; --plot-eteint: #12292D;
-    --ambre: #E8B45C; --rouge: #F08A8A;
-    --isac1: #22A08A; --isac2: #D95926; --alex: #9085E9;
+    --encre: #E9F1EF; --sourdine: #8FA5A8; --vert: #3DF0C2; --ambre: #E8B45C;
     --texte: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
-    --code: "Cascadia Mono", Consolas, ui-monospace, monospace;
   }
   * { box-sizing: border-box; margin: 0; }
   html, body { height: 100%; background: #000; overflow: hidden; }
   #plateau { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
-    background: radial-gradient(1300px 800px at 68% 18%, #0E2126 0%, var(--fond) 62%); color: var(--encre); font: 400 30px/1.4 var(--texte); }
-  code, .mono { font-family: var(--code); font-size: 0.9em; }
+    background: var(--fond); color: var(--encre); font: 400 36px/1.35 var(--texte); }
+  /* Une lueur qui bat avec la musique, derrière tout le reste. */
+  #halo { position: absolute; inset: 0; background: radial-gradient(1100px 760px at 74% 30%, #12343A 0%, rgba(8, 17, 20, 0) 70%); }
+  #avancee { position: absolute; left: 0; bottom: 0; height: 6px; width: 0; background: var(--vert); }
+  #lancer { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; background: rgba(8, 17, 20, 0.92); cursor: pointer; text-align: center; }
+  #lancer strong { display: block; font-size: 84px; font-weight: 600; letter-spacing: -0.02em; }
+  #lancer span { color: var(--sourdine); }
 
-  /* --- Ce qui reste d'une scène à l'autre. --- */
-  .signature { position: absolute; left: 64px; top: 44px; display: flex; align-items: center; gap: 14px; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; z-index: 5; }
-  .signature svg { fill: var(--plot); }
-  #chapitre { position: absolute; right: 64px; top: 46px; font-size: 24px; color: var(--sourdine); z-index: 5; }
-  #avancee { position: absolute; left: 0; bottom: 0; height: 5px; width: 0; background: var(--plot); z-index: 5; }
-  #aide { position: absolute; right: 64px; bottom: 30px; font-size: 20px; color: var(--sourdine); z-index: 5; }
+  .scene { position: absolute; inset: 0; padding: 120px 150px; display: none; flex-direction: column; justify-content: center; }
+  .ambre { color: var(--ambre); }
+  .vert { color: var(--vert); }
+  .geant { font-size: 172px; font-weight: 600; line-height: 1.02; letter-spacing: -0.04em; }
+  .grand { font-size: 74px; font-weight: 600; line-height: 1.12; letter-spacing: -0.025em; max-width: 1500px; }
+  .sous-titre { margin-top: 44px; font-size: 46px; color: var(--sourdine); max-width: 1400px; }
+  .sous-titre strong { color: var(--encre); font-weight: 600; }
+  .mot { display: inline-block; white-space: pre; }
+  .repere { position: absolute; left: 150px; top: 96px; font-size: 40px; font-weight: 600; color: var(--sourdine); }
+  .legende { position: absolute; left: 150px; right: 150px; bottom: 84px; font-size: 46px; font-weight: 600; letter-spacing: -0.01em; }
 
-  .scene { position: absolute; inset: 0; padding: 128px 130px 90px; display: none; }
-  .titre { font-size: 72px; font-weight: 600; line-height: 1.08; letter-spacing: -0.025em; max-width: 1500px; }
-  .titre.moyen { font-size: 58px; }
-  .chapo { margin-top: 22px; font-size: 33px; line-height: 1.35; color: var(--sourdine); max-width: 1350px; }
-  .discret { color: var(--sourdine); }
-  .carte { background: var(--surface); border: 1px solid var(--trait); border-radius: 18px; }
-  [data-a="pousse"] { transform-origin: left center; }
-  [data-a="leve"] { transform-origin: center bottom; }
-  .plan { position: absolute; left: 130px; right: 130px; }
+  /* Le nom du projet. */
+  .nom { display: flex; align-items: center; gap: 40px; font-size: 208px; font-weight: 600; letter-spacing: -0.045em; line-height: 1; margin-bottom: 46px; }
+  .nom svg { fill: var(--vert); flex: none; }
 
-  /* --- La puce : des plots dont la lumière dit une part de patients. --- */
-  .grille { display: grid; grid-template-columns: repeat(var(--cols, 24), var(--plot-taille, 22px)); gap: var(--plot-ecart, 5px); }
-  .grille i { width: var(--plot-taille, 22px); height: var(--plot-taille, 22px); border-radius: 50%; background: var(--plot-eteint); }
-  .grille i.absent { background: transparent !important; box-shadow: inset 0 0 0 1.5px var(--trait) !important; }
-  .grille i.choisi { outline: 3px solid #FFFFFF; outline-offset: 3px; }
+  /* Une question, puis sa réponse. */
+  .echange { display: flex; flex-direction: column; gap: 34px; width: 1420px; margin-top: 30px; }
+  .demande { align-self: flex-end; padding: 26px 40px; border-radius: 40px 40px 8px 40px; background: #17403F; font-size: 50px; min-height: 120px; }
+  .emplacement { position: relative; height: 420px; }
+  .emplacement > * { position: absolute; left: 0; top: 0; }
+  .attente { display: flex; align-items: center; gap: 28px; padding: 30px 40px; border-radius: 8px 40px 40px 40px; background: var(--creux); font-size: 40px; color: var(--sourdine); }
+  .points { display: grid; grid-template-columns: repeat(8, 13px); gap: 7px; }
+  .points i { width: 13px; height: 13px; border-radius: 50%; background: var(--vert); }
+  .fiche { padding: 34px 48px 38px; border-radius: 8px 40px 40px 40px; background: var(--creux); border-left: 10px solid var(--couleur, var(--vert)); transform-origin: left center; }
+  .fiche { width: 1010px; }
+  .fiche.refus { --couleur: var(--ambre); width: auto; }
+  .statut { font-size: 38px; font-weight: 600; color: var(--couleur, var(--vert)); }
+  .valeur { font-size: 200px; font-weight: 600; line-height: 1; letter-spacing: -0.04em; margin: 6px 0 10px; }
+  .refus .valeur { font-size: 118px; letter-spacing: -0.03em; line-height: 1.08; margin: 12px 0 16px; }
+  .preuve { font-size: 42px; color: var(--sourdine); }
+  .badges { position: absolute; right: 150px; top: 520px; display: flex; flex-direction: column; align-items: flex-end; gap: 22px; }
+  .badges span { padding: 16px 34px; border-radius: 999px; border: 3px solid var(--vert); font-size: 42px; font-weight: 600; transform-origin: right center; }
+  .curseur-texte { display: inline-block; width: 5px; height: 1em; margin: 0 -10px 0 5px; vertical-align: -0.12em; background: var(--vert); }
 
-  /* ================= Scène 1 : le titre ================= */
-  #s-titre { padding: 0; }
-  #s-titre .grille { position: absolute; left: 60px; top: 70px; --cols: 40; --plot-taille: 30px; --plot-ecart: 15px; opacity: 0.5; }
-  #s-titre .voile { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8, 17, 20, 0.96) 0%, rgba(8, 17, 20, 0.86) 46%, rgba(8, 17, 20, 0.25) 100%); }
-  #s-titre .bloc { position: absolute; left: 130px; top: 300px; max-width: 1400px; }
-  #s-titre h1 { font-size: 178px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; }
-  #s-titre .promesse { margin-top: 38px; font-size: 50px; line-height: 1.22; letter-spacing: -0.01em; }
-  #s-titre .promesse .dire { color: var(--ambre); }
-  #s-titre .pied { position: absolute; left: 130px; bottom: 96px; font-size: 28px; color: var(--sourdine); line-height: 1.5; }
-  #s-titre .pied strong { color: var(--encre); font-weight: 600; }
+  /* Comment ça marche, en trois cases. */
+  .chaine { display: flex; align-items: center; gap: 0; margin-top: 70px; }
+  .case { flex: 1; padding: 44px 40px; border-radius: 28px; background: var(--surface); border: 2px solid var(--trait); font-size: 50px; font-weight: 600; line-height: 1.18; letter-spacing: -0.015em; min-height: 220px; display: flex; align-items: center; }
+  .case.cle { border-color: var(--vert); box-shadow: 0 0 60px rgba(61, 240, 194, 0.18); }
+  .fleche { width: 90px; flex: none; height: 6px; margin: 0 14px; border-radius: 3px; background: var(--vert); transform-origin: left center; }
 
-  /* ================= Scène 2 : les données ================= */
-  .compteurs { top: 440px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 60px; }
-  .compteur .nombre { font-size: 170px; font-weight: 600; line-height: 1; letter-spacing: -0.04em; }
-  .compteur .nom { margin-top: 14px; font-size: 38px; }
-  .compteur .detail { font-size: 26px; color: var(--sourdine); }
-  .repartition { top: 400px; }
-  .blocs { display: flex; gap: 4px; height: 58px; }
-  .blocs div { display: flex; align-items: center; padding: 0 22px; border-radius: 8px; color: #FFFFFF; font-size: 27px; font-weight: 600; white-space: nowrap; }
-  .trois-puces { margin-top: 56px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
-  .trois-puces .grille { --plot-taille: 17px; --plot-ecart: 4.5px; margin: 16px 0 14px; }
-  .trois-puces h3 { display: flex; align-items: center; gap: 12px; font-size: 30px; font-weight: 600; }
-  .pastille { width: 16px; height: 16px; border-radius: 4px; flex: none; }
-  .trois-puces p { font-size: 25px; color: var(--sourdine); }
-  .trois-puces p strong { color: var(--encre); font-weight: 600; }
+  /* Les résultats. */
+  .resultats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 46px 90px; margin-top: 40px; }
+  .resultat p { margin-top: 10px; font-size: 40px; line-height: 1.25; color: var(--sourdine); }
+  .resultat p.nombre { margin-top: 0; font-size: 172px; font-weight: 600; line-height: 1; letter-spacing: -0.04em; white-space: nowrap; transform-origin: left bottom; color: var(--encre); }
+  .resultat p.nombre.vert { color: var(--vert); }
+  .resultat p.nombre.ambre { color: var(--ambre); }
 
-  /* ================= Les fausses fenêtres de conversation ================= */
-  .fil { display: flex; flex-direction: column; gap: 22px; }
-  .demande { align-self: flex-end; max-width: 88%; padding: 18px 26px; border-radius: 26px 26px 6px 26px; background: #17403F; font-size: 31px; min-height: 80px; }
-  .fiche { padding: 24px 30px; border-radius: 6px 26px 26px 26px; background: var(--creux); border-left: 6px solid var(--couleur, var(--plot)); }
-  .fiche.abstention { --couleur: var(--ambre); }
-  .fiche.depart { --couleur: var(--sourdine); }
-  .statut { font-size: 27px; font-weight: 600; color: var(--couleur, var(--plot)); }
-  .valeur { font-size: 104px; font-weight: 600; line-height: 1.08; letter-spacing: -0.03em; margin: 2px 0 8px; }
-  .justification { font-size: 28px; line-height: 1.42; }
-  .mesures { display: flex; gap: 46px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--trait); font-size: 23px; }
-  .mesures dt { color: var(--sourdine); }
-  .mesures dd { margin: 0; font-weight: 600; }
-  mark { background: none; color: inherit; border-radius: 6px; padding: 0 4px; margin: 0 -4px; }
-  mark.vu { background: rgba(232, 180, 92, 0.24); color: #FFE4B0; }
-  mark.vert.vu { background: rgba(61, 240, 194, 0.2); color: #B9FFEB; }
-  /* Le curseur de saisie ne prend aucune place : il ne fait jamais passer le texte à la ligne. */
-  .curseur-texte { display: inline-block; width: 3px; height: 1em; margin: 0 -6px 0 3px; vertical-align: -0.12em; background: var(--plot); }
-  .attente { padding: 24px 30px; border-radius: 6px 26px 26px 26px; background: var(--creux); }
-  .attente-tete { display: flex; align-items: center; gap: 18px; font-size: 25px; color: var(--sourdine); }
-  .points { display: grid; grid-template-columns: repeat(8, 9px); gap: 5px; }
-  .points i { width: 9px; height: 9px; border-radius: 50%; background: var(--plot); }
-  .etape { margin-top: 16px; display: flex; gap: 16px; align-items: baseline; font-size: 23px; }
-  .etape span { color: var(--sourdine); flex: none; }
-  .emplacement { position: relative; height: 470px; }
-  .emplacement > * { position: absolute; left: 0; right: 0; top: 0; }
-
-  /* ================= Scène 3 : le problème ================= */
-  .deux { top: 290px; display: grid; grid-template-columns: 1fr 1fr; gap: 90px; align-items: start; }
-  .etiquette { font-size: 24px; color: var(--sourdine); margin-bottom: 10px; }
-  .pieges { display: grid; gap: 30px; }
-  .pieges h3 { font-size: 42px; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 6px; }
-  .piege { display: grid; grid-template-columns: 22px 1fr; gap: 20px; align-items: start; }
-  .piege::before { content: ""; width: 18px; height: 18px; margin-top: 13px; border-radius: 50%; background: var(--plot); box-shadow: 0 0 14px rgba(61, 240, 194, 0.6); }
-  .piege strong { display: block; font-size: 31px; font-weight: 600; line-height: 1.3; }
-  .piege span { font-size: 26px; color: var(--sourdine); }
-
-  /* ================= Scène 4 : le harnais ================= */
-  .schema { top: 270px; display: flex; align-items: stretch; }
-  .boite { padding: 24px 28px; border-radius: 18px; background: var(--surface); border: 1px solid var(--trait); }
-  .boite h3 { font-size: 30px; font-weight: 600; margin-bottom: 8px; }
-  .boite p, .boite li { font-size: 23px; color: var(--sourdine); line-height: 1.4; }
-  .boite ul { list-style: none; padding: 0; }
-  .boite li { font-family: var(--code); font-size: 22px; color: var(--encre); }
-  .boite.agent { border-color: var(--plot); box-shadow: 0 0 0 1px var(--plot), 0 0 46px rgba(61, 240, 194, 0.14); }
-  .lien { width: 96px; flex: none; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 0 10px; }
-  .lien span { font-size: 18px; color: var(--sourdine); text-align: center; line-height: 1.15; }
-  .lien i { display: block; height: 3px; border-radius: 2px; background: var(--plot); }
-  .sortie { top: 566px; left: 520px; right: auto; display: flex; align-items: center; gap: 18px; }
-  .sortie i { display: block; width: 3px; height: 54px; border-radius: 2px; background: var(--plot); }
-  .sortie code { padding: 12px 22px; border-radius: 12px; background: var(--creux); font-size: 26px; }
-  .atouts { top: 708px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 46px; }
-  .atout h3 { font-size: 34px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
-  .atout p { font-size: 25px; line-height: 1.4; color: var(--sourdine); }
-
-  /* ================= Scènes 5 et 6 : une question, pas à pas ================= */
-  .pas-a-pas { top: 150px; bottom: 80px; display: grid; grid-template-columns: 620px 1fr; gap: 80px; }
-  .recit .titre { font-size: 60px; }
-  .jalons { margin-top: 46px; display: grid; gap: 26px; }
-  .jalon { display: grid; grid-template-columns: 52px 1fr; gap: 20px; align-items: start; }
-  .jalon b { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--trait); font-size: 25px; font-weight: 600; color: var(--sourdine); }
-  .jalon.fait b { border-color: var(--plot); color: var(--plot); }
-  .jalon strong { display: block; font-size: 31px; font-weight: 600; line-height: 1.25; }
-  .jalon span { font-size: 24px; color: var(--sourdine); line-height: 1.35; }
-  .jalon pre { margin-top: 10px; padding: 14px 18px; border-radius: 10px; background: var(--surface); border: 1px solid var(--trait); font: 21px/1.5 var(--code); color: var(--encre); white-space: pre-wrap; }
-  .fenetre-agent { padding: 30px 34px; display: flex; flex-direction: column; gap: 22px; }
-  .fenetre-agent > h3 { font-size: 28px; font-weight: 600; padding-bottom: 18px; border-bottom: 1px solid var(--trait); }
-  .raisons { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 14px; }
-  .raisons span { padding: 10px 22px; border-radius: 999px; border: 1.5px solid var(--ambre); color: #FFE4B0; font-size: 26px; }
-  .a-retenir { margin-top: 34px; font-size: 28px; line-height: 1.4; }
-
-  /* ================= Scène 7 : l'interface ================= */
-  .appli { position: absolute; left: 130px; right: 130px; top: 222px; height: 746px; overflow: hidden; display: grid; grid-template-columns: 1.5fr 1fr; grid-template-rows: 70px 1fr; }
-  .appli .bandeau { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 0 30px; border-bottom: 1px solid var(--trait); font-size: 25px; }
-  .appli .bandeau strong { font-weight: 600; }
-  .appli .bandeau svg { fill: var(--plot); }
-  .segments { margin-left: auto; position: relative; display: flex; padding: 4px; border-radius: 999px; background: var(--creux); border: 1px solid var(--trait); font-size: 21px; font-weight: 600; }
-  .segments span { position: relative; z-index: 1; padding: 6px 20px; }
-  .segments span.actif { color: #0B1518; }
-  .segments i { position: absolute; top: 4px; bottom: 4px; border-radius: 999px; background: var(--plot); }
-  .gauche { padding: 24px 30px; border-right: 1px solid var(--trait); }
-  .tuiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
-  .tuiles .nom { font-size: 19px; color: var(--sourdine); }
-  .tuiles .nombre { font-size: 50px; font-weight: 600; line-height: 1.1; letter-spacing: -0.02em; }
-  .lecteur { padding: 20px 24px 18px; border-radius: 14px; background: #0B1518; border: 1px solid var(--trait); }
-  .lecteur h4 { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
-  .lecteur .grille { --plot-taille: 23px; --plot-ecart: 5.5px; }
-  .dosage { margin-top: 16px; padding: 16px 24px; border-radius: 14px; background: var(--creux); display: grid; grid-template-columns: auto 1fr; gap: 6px 40px; align-items: center; }
-  .dosage h4 { font-size: 22px; font-weight: 600; }
-  .dosage .grand { font-size: 54px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
-  .dosage .barres { grid-row: 1 / 3; grid-column: 2; display: grid; gap: 9px; font-size: 19px; }
-  .dosage .barres div { display: grid; grid-template-columns: 110px 1fr 76px; align-items: center; gap: 12px; }
-  .dosage .barres i { display: block; height: 11px; border-radius: 0 5px 5px 0; }
-  .dosage .barres b { font-weight: 400; text-align: right; }
-  .droite { display: flex; flex-direction: column; padding: 24px 30px; }
-  .droite h4 { font-size: 24px; font-weight: 600; padding-bottom: 16px; border-bottom: 1px solid var(--trait); }
-  .droite .accueil { margin: auto 0; }
-  .droite .accueil strong { display: block; font-size: 32px; font-weight: 600; line-height: 1.2; margin-bottom: 10px; }
-  .droite .accueil span { font-size: 21px; color: var(--sourdine); line-height: 1.4; display: block; }
-  .suggestion { margin-bottom: 14px; padding: 10px 20px; border-radius: 22px; border: 1.5px solid var(--plot); background: rgba(61, 240, 194, 0.1); font-size: 21px; line-height: 1.3; }
-  .saisie { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 22px; border-radius: 22px; background: var(--creux); border: 1px solid var(--trait); font-size: 21px; color: var(--sourdine); }
-  .saisie i { margin-left: auto; width: 44px; height: 44px; border-radius: 50%; background: var(--plot); flex: none; }
-  .souris { position: absolute; left: 0; top: 0; width: 30px; height: 30px; z-index: 4; }
-  .souris svg { display: block; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
-  .souris .clic { position: absolute; left: -22px; top: -22px; width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--plot); opacity: 0; }
-  .legende { position: absolute; left: 130px; right: 130px; bottom: 34px; text-align: center; font-size: 30px; }
-
-  /* ================= Scène 8 : les résultats ================= */
-  .mesures-cles { top: 290px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 60px; }
-  .mesure-cle h3 { font-size: 34px; font-weight: 600; color: var(--plot); }
-  .mesure-cle p { font-size: 26px; color: var(--sourdine); line-height: 1.35; }
-  .mesure-cle p.nombre { font-size: 136px; font-weight: 600; line-height: 1.05; letter-spacing: -0.04em; color: var(--encre); margin-bottom: 8px; }
-  .evolution { top: 640px; display: grid; grid-template-columns: 1fr 1fr; gap: 90px; }
-  .evolution h3 { font-size: 28px; font-weight: 600; margin-bottom: 14px; }
-  .evolution h3 span { color: var(--plot); margin-left: 14px; }
-  .evolution .rang { display: grid; grid-template-columns: 210px 1fr 150px; align-items: center; gap: 18px; font-size: 24px; margin-bottom: 11px; }
-  .evolution .rang span { color: var(--sourdine); }
-  .evolution .rang i { display: block; height: 22px; border-radius: 0 6px 6px 0; background: var(--plot); }
-  .evolution .rang i.avant { background: #3C5258; }
-  .evolution .rang b { font-weight: 600; text-align: right; }
-  .reserve { top: 906px; font-size: 24px; color: var(--sourdine); line-height: 1.45; max-width: 1500px; }
-
-  /* ================= Scène 9 : ce qui reste ouvert, et la fin ================= */
-  .ouverts { top: 300px; display: grid; gap: 34px; max-width: 1450px; }
-  .ouverts .piege strong { font-size: 36px; }
-  .ouverts .piege span { font-size: 28px; }
-  .final { top: 250px; }
-  .final blockquote { font-size: 76px; font-weight: 600; line-height: 1.12; letter-spacing: -0.025em; max-width: 1560px; }
-  .final cite { display: block; margin-top: 18px; font-size: 26px; font-style: normal; color: var(--sourdine); }
-  .credits { top: 690px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 90px; font-size: 26px; line-height: 1.45; }
-  .credits strong { display: block; font-size: 22px; font-weight: 400; color: var(--sourdine); }
-  .avis { top: 930px; font-size: 28px; color: var(--ambre); }
+  /* La fin. */
+  .trois { display: flex; gap: 50px; font-size: 150px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; }
+  .trois span { transform-origin: left bottom; }
+  .signature { margin-top: 70px; font-size: 44px; line-height: 1.45; }
+  .signature strong { font-size: 64px; font-weight: 600; letter-spacing: -0.02em; }
+  .signature .discret { color: var(--sourdine); }
+  .adresse { margin-top: 34px; font-size: 50px; font-weight: 600; }
+  .avis { position: absolute; left: 150px; bottom: 76px; font-size: 34px; color: var(--ambre); }
+  /* Le QR code de la démo : sombre sur blanc, avec sa marge, pour qu'un téléphone le lise sur un écran. */
+  .qr { position: absolute; right: 150px; bottom: 76px; display: flex; flex-direction: column; align-items: center; gap: 16px; transform-origin: right bottom; font-size: 32px; color: var(--sourdine); }
+  .qr svg { display: block; border-radius: 20px; }
 </style>
 </head>
 <body>
 <div id="plateau">
-  <div class="signature" id="signature">
-    <svg viewBox="0 0 20 20" width="26" height="26" aria-hidden="true">
-      <circle cx="4" cy="4" r="2.4"/><circle cx="10" cy="4" r="2.4" opacity=".35"/><circle cx="16" cy="4" r="2.4"/>
-      <circle cx="4" cy="10" r="2.4" opacity=".35"/><circle cx="10" cy="10" r="2.4"/><circle cx="16" cy="10" r="2.4" opacity=".6"/>
-      <circle cx="4" cy="16" r="2.4" opacity=".6"/><circle cx="10" cy="16" r="2.4" opacity=".35"/><circle cx="16" cy="16" r="2.4"/>
-    </svg>
-    AllergyLab
-  </div>
-  <div id="chapitre"></div>
+  <div id="halo"></div>
 
-  <!-- ============ 1. Titre ============ -->
-  <section class="scene" id="s-titre" data-duree="8">
-    <div class="grille" data-grille="Toutes" data-repete="920" data-t="0.1" data-pas="0.045" data-colonnes="40" data-par="colonne"></div>
-    <div class="voile"></div>
-    <div class="bloc">
-      <h1 data-a="monte" data-t="0.7" data-d="0.9">AllergyLab</h1>
-      <p class="promesse" data-a="monte" data-t="1.5">Un agent qui interroge des données d'allergologie,</p>
-      <p class="promesse" data-a="monte" data-t="2.4" style="margin-top: 0">et qui sait dire <span class="dire">« je ne peux pas conclure »</span>.</p>
-    </div>
-    <p class="pied" data-a="fondu" data-t="3.6"><strong>Équipe 3</strong><br>Semaine AllergyLab, EFREI, programme Open Data University, novembre 2026</p>
+  <!-- 1. L'accroche : 0 à 6 s -->
+  <section class="scene" data-duree="6">
+    <p class="geant" data-mots data-t="0.3" data-pas="0.24">Une IA répond toujours.</p>
+    <p class="geant ambre" data-mots data-t="2.0" data-pas="0.2">Même quand elle ne sait pas.</p>
+    <p class="sous-titre" data-a="monte" data-t="4.0">En santé, un chiffre inventé peut coûter cher.</p>
   </section>
 
-  <!-- ============ 2. Les données ============ -->
-  <section class="scene" data-duree="16" data-chapitre="Les données">
-    <h2 class="titre" data-a="monte" data-t="0.3">Un vrai jeu de données de santé</h2>
-    <p class="chapo" data-a="monte" data-t="0.9">« Allergen Chip Challenge », publié en données ouvertes par la Société Française d'Allergologie.</p>
-
-    <div class="plan compteurs">
-      <div class="compteur" data-a="monte" data-t="1.8" data-s="7.6">
-        <p class="nombre" data-compte="4271" data-t="1.8" data-d="1.4"></p>
-        <p class="nom">patients</p><p class="detail">une ligne par patient, anonymisée</p>
-      </div>
-      <div class="compteur" data-a="monte" data-t="2.5" data-s="7.7">
-        <p class="nombre" data-compte="256" data-t="2.5" data-d="1.2"></p>
-        <p class="nom">colonnes</p><p class="detail">15 cliniques, 241 dosages d'IgE</p>
-      </div>
-      <div class="compteur" data-a="monte" data-t="3.2" data-s="7.8">
-        <p class="nombre" data-compte="3" data-t="3.2" data-d="0.8"></p>
-        <p class="nom">puces à allergènes</p><p class="detail">ISAC_V1, ISAC_V2 et ALEX</p>
-      </div>
+  <!-- 2. Le projet : 6 à 12 s -->
+  <section class="scene" data-duree="6">
+    <div class="nom" data-a="frappe" data-t="0.05">
+      <svg viewBox="0 0 20 20" width="170" height="170" aria-hidden="true">
+        <circle cx="4" cy="4" r="2.4"/><circle cx="10" cy="4" r="2.4" opacity=".35"/><circle cx="16" cy="4" r="2.4"/>
+        <circle cx="4" cy="10" r="2.4" opacity=".35"/><circle cx="10" cy="10" r="2.4"/><circle cx="16" cy="10" r="2.4" opacity=".6"/>
+        <circle cx="4" cy="16" r="2.4" opacity=".6"/><circle cx="10" cy="16" r="2.4" opacity=".35"/><circle cx="16" cy="16" r="2.4"/>
+      </svg>
+      AllergyLab
     </div>
-
-    <div class="plan repartition">
-      <div class="blocs">
-        <div style="flex: 2351 0 0; background: var(--isac1)" data-a="pousse" data-t="8.3" data-d="0.8">ISAC_V1 &nbsp; 55,0&nbsp;%</div>
-        <div style="flex: 781 0 0; background: var(--isac2)" data-a="pousse" data-t="8.6" data-d="0.8">ISAC_V2 &nbsp; 18,3&nbsp;%</div>
-        <div style="flex: 1139 0 0; background: var(--alex)" data-a="pousse" data-t="8.9" data-d="0.8">ALEX &nbsp; 26,7&nbsp;%</div>
-      </div>
-      <p class="chapo" data-a="fondu" data-t="9.4" style="margin-top: 20px; font-size: 29px; max-width: none">Chaque patient est testé sur une seule puce. Et les trois puces ne mesurent pas les mêmes allergènes :</p>
-      <div class="trois-puces">
-        <div data-a="monte" data-t="10.3">
-          <h3><span class="pastille" style="background: var(--isac1)"></span>ISAC_V1</h3>
-          <div class="grille" data-grille="ISAC_V1" data-t="10.5" data-pas="0.06"></div>
-          <p><strong>112</strong> dosages mesurés sur 241</p>
-        </div>
-        <div data-a="monte" data-t="10.8">
-          <h3><span class="pastille" style="background: var(--isac2)"></span>ISAC_V2</h3>
-          <div class="grille" data-grille="ISAC_V2" data-t="11.0" data-pas="0.06"></div>
-          <p><strong>112</strong> dosages mesurés sur 241</p>
-        </div>
-        <div data-a="monte" data-t="11.3">
-          <h3><span class="pastille" style="background: var(--alex)"></span>ALEX</h3>
-          <div class="grille" data-grille="ALEX" data-t="11.5" data-pas="0.06"></div>
-          <p><strong>223</strong> dosages mesurés sur 241</p>
-        </div>
-      </div>
-    </div>
+    <p class="grand" data-a="monte" data-t="1.0">Un assistant IA qui interroge de vraies données de santé,</p>
+    <p class="grand ambre" data-a="monte" data-t="2.2">et qui sait dire « je ne sais pas ».</p>
+    <p class="sous-titre" data-a="fondu" data-t="3.6">Des données publiques d'allergologie : <strong data-compte="4271" data-t="3.6" data-d="1.0"></strong> patients.</p>
   </section>
 
-  <!-- ============ 3. Le problème ============ -->
-  <section class="scene" data-duree="18" data-chapitre="Le problème">
-    <h2 class="titre" data-a="monte" data-t="0.3">Seul, un modèle devine.</h2>
-    <div class="plan deux">
-      <div class="fil">
-        <p class="demande" data-a="monte" data-t="1.1"><span data-frappe data-t="1.3" data-d="1.5">Combien y a-t-il d'hommes et de femmes ?</span></p>
-        <div class="fiche depart" data-a="monte" data-t="3.4">
-          <p class="etiquette">L'agent de départ, sans dictionnaire</p>
-          <p class="justification">« Le dictionnaire de codage n'étant pas fourni, je ne peux pas affirmer lequel représente les hommes et lequel les femmes ; <mark data-quand="6.0:vu">en supposant le codage habituel</mark> 1 = homme et 0 = femme, il y aurait 2139 hommes et 2070 femmes. »</p>
+  <!-- 3. Une réponse : 12 à 22 s -->
+  <section class="scene" data-duree="10">
+    <p class="repere" data-a="gauche" data-t="0.1">Quand les données permettent de répondre</p>
+    <div class="echange">
+      <p class="demande" data-a="monte" data-t="0.4"><span data-frappe data-t="0.6" data-d="1.3">Quelle proportion de patients vit en zone urbaine ?</span></p>
+      <div class="emplacement">
+        <div class="attente" data-a="fondu" data-t="2.2" data-d="0.3" data-s="3.2"><span class="points" data-points></span><span>Il choisit un outil et calcule…</span></div>
+        <div class="fiche" data-a="frappe" data-t="3.6">
+          <p class="statut">Réponse</p>
+          <p class="valeur"><span data-compte="74.8" data-dec="1" data-t="3.6" data-d="0.9"></span> %</p>
+          <p class="preuve" data-a="fondu" data-t="5.0">Calculé sur les 1 291 patients dont le lieu de vie est connu.</p>
         </div>
-        <p class="discret" data-a="fondu" data-t="7.0" style="font-size: 25px">Réponse réelle, lue dans les traces du projet.</p>
-      </div>
-      <div class="pieges">
-        <h3 data-a="monte" data-t="8.2">Et les données sont piégées.</h3>
-        <div class="piege" data-a="gauche" data-t="9.0"><div><strong>70 % des patients sans habitat renseigné</strong><span>calcul naïf : 23 % d'urbains ; bon calcul : 74,8 %</span></div></div>
-        <div class="piege" data-a="gauche" data-t="10.3"><div><strong>Plusieurs codes dans une même cellule</strong><span>« 1, 3 » : deux traitements, pas un nombre</span></div></div>
-        <div class="piege" data-a="gauche" data-t="11.6"><div><strong>Trois puces, pas les mêmes allergènes</strong><span>une case vide n'est pas un résultat négatif</span></div></div>
-        <div class="piege" data-a="gauche" data-t="12.9"><div><strong>Ni unité, ni seuil de positivité</strong><span>le dictionnaire officiel n'en donne aucun</span></div></div>
       </div>
     </div>
+    <div class="badges">
+      <span data-a="frappe" data-t="6.0">en 3 secondes</span>
+      <span data-a="frappe" data-t="6.5">moins de 0,1 centime</span>
+    </div>
+    <p class="legende" data-a="monte" data-t="7.6">Une question en français. Une réponse chiffrée, avec sa preuve.</p>
   </section>
 
-  <!-- ============ 4. Le harnais ============ -->
-  <section class="scene" data-duree="20" data-chapitre="Comment ça marche">
-    <h2 class="titre" data-a="monte" data-t="0.3">Le modèle passe par des outils.</h2>
-    <div class="plan schema">
-      <div class="boite" style="width: 252px" data-a="monte" data-t="1.6"><h3>Une question</h3><p>en français, en langage naturel</p></div>
-      <div class="lien"><span>&nbsp;</span><i data-a="pousse" data-t="2.5" data-d="0.5"></i><span>&nbsp;</span></div>
-      <div class="boite agent" style="width: 404px" data-a="monte" data-t="2.9"><h3>L'agent</h3><p>Claude Haiku 5.5, avec smolagents.<br>Une consigne courte et des règles d'abstention.</p></div>
-      <div class="lien"><span>appels</span><i data-a="pousse" data-t="4.3" data-d="0.5"></i><span>chiffres agrégés</span></div>
-      <div class="boite" style="width: 404px" data-a="monte" data-t="4.7"><h3>5 outils Python testés</h3>
-        <ul><li>chercher_colonnes</li><li>decrire_colonne</li><li>repartition</li><li>resume_numerique</li><li>lignes</li></ul></div>
-      <div class="lien"><span>lecture</span><i data-a="pousse" data-t="6.4" data-d="0.5"></i><span>locale</span></div>
-      <div class="boite" style="width: 312px" data-a="monte" data-t="6.8"><h3>Les données</h3><p>le fichier publié,<br>4 271 patients,<br>lu sur la machine</p></div>
+  <!-- 4. Un refus : 22 à 30 s -->
+  <section class="scene" data-duree="8">
+    <p class="repere" data-a="gauche" data-t="0.1">Quand elles ne le permettent pas</p>
+    <div class="echange">
+      <p class="demande" data-a="monte" data-t="0.4"><span data-frappe data-t="0.6" data-d="1.2">Vivre en ville cause-t-il davantage d'allergies ?</span></p>
+      <div class="emplacement">
+        <div class="attente" data-a="fondu" data-t="2.0" data-d="0.3" data-s="2.9"><span class="points" data-points></span><span>Il cherche dans les données…</span></div>
+        <div class="fiche refus" data-a="frappe" data-t="3.4">
+          <p class="statut">Réponse</p>
+          <p class="valeur">Je ne peux pas conclure.</p>
+          <p class="preuve" data-a="fondu" data-t="4.6">Les données montrent un lien, jamais une cause.</p>
+        </div>
+      </div>
     </div>
-    <div class="plan sortie" data-a="fondu" data-t="8.1"><i></i><code>{ statut, valeur, justification }</code><span class="discret" style="font-size: 24px">une réponse en trois champs</span></div>
-    <div class="plan atouts">
-      <div class="atout" data-a="monte" data-t="9.6"><h3>Accès fermé</h3><p>L'agent ne reçoit pas le tableau. Seuls des résultats agrégés partent vers le modèle ; l'outil <code>lignes</code> rend au plus 5 patients et 6 colonnes.</p></div>
-      <div class="atout" data-a="monte" data-t="11.8"><h3>Des outils qui connaissent les pièges</h3><p>Non renseignés exclus, cellules découpées, puces respectées, dénominateur toujours donné.</p></div>
-      <div class="atout" data-a="monte" data-t="14.0"><h3>Tout est tracé</h3><p>Chaque question laisse ses étapes, ses jetons et son coût dans le dépôt.</p></div>
-    </div>
+    <p class="legende" data-a="monte" data-t="6.0">Il préfère le dire plutôt qu'inventer.</p>
   </section>
 
-  <!-- ============ 5. Une réponse ============ -->
-  <section class="scene" data-duree="22" data-chapitre="Une réponse">
-    <div class="plan pas-a-pas">
-      <div class="recit">
-        <h2 class="titre" data-a="monte" data-t="0.2">Quand les données permettent de répondre</h2>
-        <div class="jalons">
-          <div class="jalon" data-a="gauche" data-t="1.0" data-quand="1.0:fait"><b>1</b><div><strong>Une question</strong></div></div>
-          <div class="jalon" data-a="gauche" data-t="3.9" data-quand="3.9:fait"><b>2</b><div><strong>L'agent choisit un outil</strong></div></div>
-          <div class="jalon" data-a="gauche" data-t="5.6" data-quand="5.6:fait"><b>3</b><div><strong>L'outil compte, sur la machine</strong>
-            <pre>Exclus : 2 980 non renseignés (code 9).
-Restent 1 291 patients renseignés.
-- 1 = Urbain : 966 (74,8 %)
-- 0 = Rural : 325 (25,2 %)</pre></div></div>
-          <div class="jalon" data-a="gauche" data-t="9.4" data-quand="9.4:fait"><b>4</b><div><strong>Une réponse en trois champs</strong><span>statut, valeur, justification</span></div></div>
-        </div>
-      </div>
-      <div class="carte fenetre-agent">
-        <h3>Agent</h3>
-        <p class="demande" data-a="monte" data-t="0.9"><span data-frappe data-t="1.1" data-d="1.7">Quelle proportion de patients vit en zone urbaine ?</span></p>
-        <div class="emplacement">
-          <div class="attente" data-a="monte" data-t="3.2" data-s="8.6">
-            <div class="attente-tete"><span class="points" data-points></span><span>L'agent travaille</span></div>
-            <p class="etape" data-a="fondu" data-t="3.9"><span>Étape 1</span><code>print(repartition("Rural_or_urban_area", ""))</code></p>
-          </div>
-          <div class="fiche" data-a="monte" data-t="9.2">
-            <p class="statut">Réponse</p>
-            <p class="valeur" data-compte="74.8" data-dec="1" data-t="9.3" data-d="1.1"></p>
-            <p class="justification">Sur les <mark class="vert" data-quand="13.6:vu">1291 patients dont le lieu de vie est renseigné</mark> (sur 4271 ; 2980 non renseignés, code 9), 966 vivent en zone urbaine (code 1), soit 74,8 %.</p>
-            <dl class="mesures"><div><dt>Étapes</dt><dd>2</dd></div><div><dt>Jetons</dt><dd>6 986</dd></div><div><dt>Coût estimé</dt><dd>0,0008 $</dd></div><div><dt>Durée</dt><dd>3,0 s</dd></div></dl>
-          </div>
-        </div>
-        <p data-a="monte" data-t="14.2" style="font-size: 28px">Le dénominateur est toujours donné. <span class="discret">Sans cette règle, le calcul rendrait 23 %.</span></p>
-      </div>
+  <!-- 5. Comment : 30 à 36 s -->
+  <section class="scene" data-duree="6">
+    <p class="grand" data-mots data-t="0.2" data-pas="0.12">Son secret : il ne devine pas.</p>
+    <div class="chaine">
+      <div class="case" data-a="frappe" data-t="1.0">Votre question</div>
+      <div class="fleche" data-a="pousse" data-t="1.3" data-d="0.25"></div>
+      <div class="case cle" data-a="frappe" data-t="1.5">L'IA choisit un outil</div>
+      <div class="fleche" data-a="pousse" data-t="1.8" data-d="0.25"></div>
+      <div class="case" data-a="frappe" data-t="2.0">L'outil calcule sur les données</div>
     </div>
+    <p class="sous-titre" data-a="monte" data-t="3.4">Cinq outils écrits et testés par l'équipe. L'IA ne lit pas le fichier : elle passe par eux.</p>
   </section>
 
-  <!-- ============ 6. Une abstention ============ -->
-  <section class="scene" data-duree="22" data-chapitre="Une abstention">
-    <div class="plan pas-a-pas">
-      <div class="recit">
-        <h2 class="titre" data-a="monte" data-t="0.2">Et quand elles ne le permettent pas</h2>
-        <p class="a-retenir" data-a="monte" data-t="8.6">Il s'abstient seulement si les données ne permettent pas de conclure :</p>
-        <div class="raisons">
-          <span data-a="zoom" data-t="9.4">information absente</span>
-          <span data-a="zoom" data-t="9.8">lieu anonymisé</span>
-          <span data-a="zoom" data-t="10.2">question de causalité</span>
-          <span data-a="zoom" data-t="10.6">conseil médical</span>
-          <span data-a="zoom" data-t="11.0">prémisse fausse</span>
-        </div>
-        <p class="a-retenir discret" data-a="monte" data-t="12.6">S'abstenir à tort coûte autant qu'une erreur : sur un petit effectif, il répond en le signalant.</p>
-      </div>
-      <div class="carte fenetre-agent">
-        <h3>Agent</h3>
-        <p class="demande" data-a="monte" data-t="0.9"><span data-frappe data-t="1.1" data-d="1.6">Vivre en ville cause-t-il davantage d'allergies ?</span></p>
-        <div class="emplacement" style="height: 312px">
-          <div class="attente" data-a="monte" data-t="3.1" data-s="6.0">
-            <div class="attente-tete"><span class="points" data-points></span><span>L'agent travaille</span></div>
-            <p class="etape" data-a="fondu" data-t="3.8"><span>Étape 1</span><code>print(decrire_colonne("Rural_or_urban_area"))</code></p>
-          </div>
-          <div class="fiche abstention" data-a="monte" data-t="6.6">
-            <p class="statut">Ne peut pas conclure</p>
-            <p class="justification" style="margin-top: 10px">« Les données <mark data-quand="8.2:vu">ne permettent pas d'établir une cause</mark> : elles ne montrent que des associations. […] Une conclusion sur l'effet de la vie en ville demanderait une étude adaptée. »</p>
-            <dl class="mesures"><div><dt>Étapes</dt><dd>2</dd></div><div><dt>Jetons</dt><dd>5 757</dd></div><div><dt>Coût estimé</dt><dd>0,0009 $</dd></div><div><dt>Durée</dt><dd>5,6 s</dd></div></dl>
-          </div>
-        </div>
-        <p class="demande" data-a="monte" data-t="13.6"><span data-frappe data-t="13.8" data-d="1.5">Combien de patients fumeurs y a-t-il dans le tableau ?</span></p>
-        <div class="fiche abstention" data-a="monte" data-t="16.2">
-          <p class="statut">Ne peut pas conclure</p>
-          <p class="justification" style="margin-top: 10px">« Le jeu ne contient <mark data-quand="17.6:vu">aucune colonne sur le tabagisme</mark> […] Le nombre de fumeurs ne peut donc pas être calculé. »</p>
-        </div>
-      </div>
+  <!-- 6. Les résultats : 36 à 44 s -->
+  <section class="scene" data-duree="8">
+    <p class="repere" data-a="gauche" data-t="0.1">Mesuré sur 21 questions de test</p>
+    <div class="resultats">
+      <div class="resultat"><p class="nombre vert" data-a="frappe" data-t="0.5">14 / 14</p><p data-a="fondu" data-t="0.7">bonnes réponses</p></div>
+      <div class="resultat"><p class="nombre ambre" data-a="frappe" data-t="1.5">7 / 7</p><p data-a="fondu" data-t="1.7">« je ne sais pas » au bon moment</p></div>
+      <div class="resultat"><p class="nombre" data-a="frappe" data-t="2.5">3 s</p><p data-a="fondu" data-t="2.7">par réponse</p></div>
+      <div class="resultat"><p class="nombre" data-a="frappe" data-t="3.5">÷ 3,5</p><p data-a="fondu" data-t="3.7">le coût, depuis la première version</p></div>
     </div>
+    <p class="legende" data-a="monte" data-t="5.4">Chaque réponse est enregistrée, avec ses étapes et son coût : tout se vérifie.</p>
   </section>
 
-  <!-- ============ 7. L'interface ============ -->
-  <section class="scene" data-duree="19" data-chapitre="L'interface">
-    <h2 class="titre moyen" data-a="monte" data-t="0.2">Explorer les données, puis demander</h2>
-    <div class="carte appli" data-a="zoom" data-t="0.8">
-      <div class="bandeau">
-        <svg viewBox="0 0 20 20" width="24" height="24" aria-hidden="true"><circle cx="4" cy="4" r="2.4"/><circle cx="10" cy="4" r="2.4" opacity=".35"/><circle cx="16" cy="4" r="2.4"/><circle cx="4" cy="10" r="2.4" opacity=".35"/><circle cx="10" cy="10" r="2.4"/><circle cx="16" cy="10" r="2.4" opacity=".6"/><circle cx="4" cy="16" r="2.4" opacity=".6"/><circle cx="10" cy="16" r="2.4" opacity=".35"/><circle cx="16" cy="16" r="2.4"/></svg>
-        <strong>AllergyLab</strong>
-        <div class="segments">
-          <i style="left: 4px; width: 103px" data-a="fondu" data-t="0" data-d="0.01" data-s="5.2"></i>
-          <i style="left: 107px; width: 117px" data-a="fondu" data-t="5.3" data-d="0.3"></i>
-          <span data-quand="0:actif 5.4:-actif">Toutes</span><span data-quand="5.4:actif">ISAC_V1</span><span>ISAC_V2</span><span>ALEX</span>
-        </div>
-      </div>
-      <div class="gauche">
-        <div class="tuiles">
-          <div><p class="nom">Patients</p><p class="nombre" data-compte="4271" data-t="1.2" data-d="1.0" data-puis="2351|5.5"></p></div>
-          <div><p class="nom">Âge médian</p><p class="nombre" data-compte="16" data-t="1.2" data-d="1.0" data-puis="15|5.5" data-apres=" ans"></p></div>
-          <div><p class="nom">Dosages mesurés</p><p class="nombre" data-compte="241" data-t="1.2" data-d="1.0" data-puis="112|5.5"></p></div>
-        </div>
-        <div class="lecteur">
-          <h4>La puce, dosage par dosage</h4>
-          <div class="grille" data-grille="Toutes" data-t="1.4" data-pas="0.07" data-vers="ISAC_V1|5.5" data-choisi="54|9.5"></div>
-        </div>
-        <div class="dosage" data-a="monte" data-t="9.9">
-          <h4>Dosage <code>Der_p_1</code></h4>
-          <p class="grand" data-compte="36.6" data-dec="1" data-apres=" %" data-t="10.0" data-d="0.8"></p>
-          <div class="barres">
-            <div><span>ISAC_V1</span><i style="background: var(--isac1)" data-largeur="60.9" data-t="10.3"></i><b>36,6 %</b></div>
-            <div><span>ISAC_V2</span><i style="background: var(--isac2)" data-largeur="53.4" data-t="10.5"></i><b>32,1 %</b></div>
-            <div><span>ALEX</span><i style="background: var(--alex)" data-largeur="64.1" data-t="10.7"></i><b>38,5 %</b></div>
-          </div>
-        </div>
-      </div>
-      <div class="droite">
-        <h4>Agent</h4>
-        <div class="accueil"><strong>Que voulez-vous savoir sur ces données ?</strong><span>Cliquez un plot, une barre ou une variable : une question se prépare ci-dessous.</span></div>
-        <p class="suggestion" data-a="monte" data-t="12.8">Combien de patients ont un dosage Der_p_1 au-dessus de zéro sur la puce ISAC_V1 ?</p>
-        <div class="saisie">Posez une question sur les données<i></i></div>
-      </div>
+  <!-- 7. La fin : 44 à 52 s -->
+  <section class="scene" data-duree="8">
+    <div class="trois">
+      <span data-a="frappe" data-t="0.2">Fiable.</span>
+      <span class="ambre" data-a="frappe" data-t="0.7">Honnête.</span>
+      <span class="vert" data-a="frappe" data-t="1.2">Mesuré.</span>
     </div>
-    <div class="souris" data-trajet="2.6:1250,640 4.9:1487,262 6.2:1487,262 9.2:368,556 11.8:368,556 14.4:1330,848 19:1330,848" data-clics="5.1 9.4" data-a="fondu" data-t="2.4" data-d="0.4">
-      <span class="clic"></span>
-      <svg viewBox="0 0 24 24" width="30" height="30"><path d="M4 2l15 9.5-6.6 1.6 4 7.4-2.9 1.5-3.9-7.5L5 19z" fill="#FFFFFF" stroke="#0B1518" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    <div class="signature">
+      <p data-a="monte" data-t="2.4"><strong>AllergyLab, équipe 3</strong></p>
+      <p class="discret" data-a="monte" data-t="2.8">Projet étudiant, EFREI, programme Open Data University, novembre 2026</p>
+      <p data-a="monte" data-t="3.6">Python, IA générative, analyse de données, tests automatisés</p>
+      <p class="adresse" data-a="monte" data-t="4.4">Essayez-le : <span class="vert">allergylab-agent.onrender.com</span></p>
     </div>
-    <p class="legende" data-a="fondu" data-t="1.6" data-s="5.0">Chaque plot est un dosage : plus il brille, plus les patients sont nombreux à dépasser zéro.</p>
-    <p class="legende" data-a="fondu" data-t="5.7" data-s="9.2">Un filtre par puce : ISAC_V1 ne mesure que 112 dosages sur 241.</p>
-    <p class="legende" data-a="fondu" data-t="9.9" data-s="12.6">Un clic sur un plot détaille le dosage, puce par puce.</p>
-    <p class="legende" data-a="fondu" data-t="13.0">Et prépare la question pour l'agent. Rien ne part sans un clic : chaque question a un coût.</p>
-  </section>
-
-  <!-- ============ 8. Les résultats ============ -->
-  <section class="scene" data-duree="21" data-chapitre="Les résultats">
-    <h2 class="titre" data-a="monte" data-t="0.3">Trois mesures</h2>
-    <div class="plan mesures-cles">
-      <div class="mesure-cle" data-a="monte" data-t="1.2"><h3>Justesse</h3><p class="nombre"><span data-compte="14" data-t="1.3" data-d="0.9"></span> / 14</p><p>réponses justes, quand les données permettent de répondre</p></div>
-      <div class="mesure-cle" data-a="monte" data-t="2.4"><h3>Abstention</h3><p class="nombre"><span data-compte="7" data-t="2.5" data-d="0.8"></span> / 7</p><p>« je ne peux pas conclure », quand elles ne le permettent pas</p></div>
-      <div class="mesure-cle" data-a="monte" data-t="3.6"><h3>Frugalité</h3><p class="nombre"><span data-compte="3" data-dec="1" data-t="3.7" data-d="0.9"></span> s</p><p>par question, pour 5 703 jetons et 0,00076 $</p></div>
+    <div class="qr" data-a="frappe" data-t="2.0">
+      <svg viewBox="0 0 37 37" width="280" height="280" shape-rendering="crispEdges" role="img" aria-label="QR code vers https://allergylab-agent.onrender.com"><rect width="37" height="37" fill="#FFFFFF"/><path fill="#081114" d="M4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM27 4h1v1h-1zM28 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM4 5h1v1h-1zM10 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM4 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM13 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM29 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM4 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM22 7h1v1h-1zM23 7h1v1h-1zM26 7h1v1h-1zM28 7h1v1h-1zM29 7h1v1h-1zM30 7h1v1h-1zM32 7h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM13 8h1v1h-1zM15 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM19 8h1v1h-1zM20 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM32 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM26 9h1v1h-1zM32 9h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM28 10h1v1h-1zM29 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM32 10h1v1h-1zM13 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM4 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM20 12h1v1h-1zM22 12h1v1h-1zM25 12h1v1h-1zM27 12h1v1h-1zM7 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM20 13h1v1h-1zM24 13h1v1h-1zM26 13h1v1h-1zM29 13h1v1h-1zM32 13h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM21 14h1v1h-1zM23 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM29 14h1v1h-1zM30 14h1v1h-1zM31 14h1v1h-1zM4 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM16 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM23 15h1v1h-1zM24 15h1v1h-1zM25 15h1v1h-1zM26 15h1v1h-1zM27 15h1v1h-1zM30 15h1v1h-1zM31 15h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM16 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM25 16h1v1h-1zM26 16h1v1h-1zM29 16h1v1h-1zM31 16h1v1h-1zM32 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM13 17h1v1h-1zM16 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM25 17h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM7 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM15 18h1v1h-1zM20 18h1v1h-1zM24 18h1v1h-1zM25 18h1v1h-1zM26 18h1v1h-1zM27 18h1v1h-1zM28 18h1v1h-1zM29 18h1v1h-1zM30 18h1v1h-1zM31 18h1v1h-1zM32 18h1v1h-1zM4 19h1v1h-1zM6 19h1v1h-1zM7 19h1v1h-1zM9 19h1v1h-1zM13 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM26 19h1v1h-1zM28 19h1v1h-1zM29 19h1v1h-1zM31 19h1v1h-1zM4 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM10 20h1v1h-1zM13 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM31 20h1v1h-1zM8 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM15 21h1v1h-1zM20 21h1v1h-1zM21 21h1v1h-1zM24 21h1v1h-1zM26 21h1v1h-1zM27 21h1v1h-1zM29 21h1v1h-1zM32 21h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM7 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM13 22h1v1h-1zM15 22h1v1h-1zM17 22h1v1h-1zM21 22h1v1h-1zM24 22h1v1h-1zM28 22h1v1h-1zM31 22h1v1h-1zM32 22h1v1h-1zM6 23h1v1h-1zM13 23h1v1h-1zM16 23h1v1h-1zM17 23h1v1h-1zM19 23h1v1h-1zM21 23h1v1h-1zM23 23h1v1h-1zM26 23h1v1h-1zM28 23h1v1h-1zM31 23h1v1h-1zM32 23h1v1h-1zM4 24h1v1h-1zM7 24h1v1h-1zM8 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM20 24h1v1h-1zM24 24h1v1h-1zM25 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM30 24h1v1h-1zM12 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM31 25h1v1h-1zM32 25h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM7 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM17 26h1v1h-1zM18 26h1v1h-1zM21 26h1v1h-1zM22 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM31 26h1v1h-1zM4 27h1v1h-1zM10 27h1v1h-1zM12 27h1v1h-1zM13 27h1v1h-1zM15 27h1v1h-1zM16 27h1v1h-1zM17 27h1v1h-1zM19 27h1v1h-1zM20 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM29 27h1v1h-1zM30 27h1v1h-1zM4 28h1v1h-1zM6 28h1v1h-1zM7 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM16 28h1v1h-1zM18 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM4 29h1v1h-1zM6 29h1v1h-1zM7 29h1v1h-1zM8 29h1v1h-1zM10 29h1v1h-1zM12 29h1v1h-1zM13 29h1v1h-1zM15 29h1v1h-1zM17 29h1v1h-1zM18 29h1v1h-1zM21 29h1v1h-1zM23 29h1v1h-1zM26 29h1v1h-1zM27 29h1v1h-1zM28 29h1v1h-1zM29 29h1v1h-1zM30 29h1v1h-1zM31 29h1v1h-1zM4 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM10 30h1v1h-1zM13 30h1v1h-1zM15 30h1v1h-1zM20 30h1v1h-1zM21 30h1v1h-1zM28 30h1v1h-1zM29 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM13 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM20 31h1v1h-1zM21 31h1v1h-1zM22 31h1v1h-1zM23 31h1v1h-1zM24 31h1v1h-1zM26 31h1v1h-1zM31 31h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM7 32h1v1h-1zM8 32h1v1h-1zM9 32h1v1h-1zM10 32h1v1h-1zM12 32h1v1h-1zM13 32h1v1h-1zM14 32h1v1h-1zM16 32h1v1h-1zM17 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM24 32h1v1h-1zM28 32h1v1h-1zM29 32h1v1h-1zM31 32h1v1h-1z"/></svg>
+      <span>Scannez pour l'essayer</span>
     </div>
-    <div class="plan evolution">
-      <div data-a="monte" data-t="7.0">
-        <h3>Coût par question <span data-a="fondu" data-t="10.6">divisé par 3,5</span></h3>
-        <div class="rang"><span>Agent de départ</span><i class="avant" data-largeur="100" data-t="7.4"></i><b>0,00266 $</b></div>
-        <div class="rang"><span>Version 2</span><i data-largeur="34.6" data-t="8.0"></i><b>0,00092 $</b></div>
-        <div class="rang"><span>Version 3</span><i data-largeur="28.6" data-t="8.6"></i><b>0,00076 $</b></div>
-      </div>
-      <div data-a="monte" data-t="7.3">
-        <h3>Temps de réponse <span data-a="fondu" data-t="11.4">divisé par 5</span></h3>
-        <div class="rang"><span>Agent de départ</span><i class="avant" data-largeur="100" data-t="7.7"></i><b>16,7 s</b></div>
-        <div class="rang"><span>Version 2</span><i data-largeur="28.1" data-t="8.3"></i><b>4,7 s</b></div>
-        <div class="rang"><span>Version 3</span><i data-largeur="18" data-t="8.9"></i><b>3,0 s</b></div>
-      </div>
-    </div>
-    <p class="plan reserve" data-a="fondu" data-t="13.2">Scores mesurés sur la batterie de contrôle de l'équipe, 21 questions écrites pendant le développement. La batterie commune de fin de semaine mesure la généralisation. Sécurité : huit tentatives d'extraction de la consigne, aucune fuite.</p>
-  </section>
-
-  <!-- ============ 9. Ce qui reste ouvert, et la fin ============ -->
-  <section class="scene" data-duree="18" data-chapitre="">
-    <h2 class="titre" data-a="monte" data-t="0.3" data-s="6.6">Ce qui reste ouvert</h2>
-    <div class="plan ouverts">
-      <div class="piege" data-a="gauche" data-t="1.2" data-s="6.7"><div><strong>Le code 10 des cofacteurs, libellé « rongeur de compagnie »</strong><span>925 patients, treize fois plus que le chat : son sens réel reste à confirmer.</span></div></div>
-      <div class="piege" data-a="gauche" data-t="2.8" data-s="6.8"><div><strong>La colonne Sensitization</strong><span>absente du dictionnaire officiel : l'agent ne lui prête pas de sens.</span></div></div>
-    </div>
-    <div class="plan final">
-      <blockquote data-a="monte" data-t="7.4" data-d="1.0">« Un agent simple et honnête vaut mieux qu'un agent brillant qui invente. »</blockquote>
-      <cite data-a="fondu" data-t="8.6">la consigne de la semaine AllergyLab</cite>
-    </div>
-    <div class="plan credits" data-a="fondu" data-t="10.4">
-      <div><strong>Projet</strong>AllergyLab, équipe 3. Agent, outils, consigne, analyse et interface.</div>
-      <div><strong>Données</strong>Allergen Chip Challenge, Société Française d'Allergologie, DOI 10.60597/j5fe-g420, Licence Ouverte 2.0.</div>
-      <div><strong>Outils</strong>Python, smolagents, Claude Haiku 5.5, pandas, pytest, uv.</div>
-      <div><strong>Cadre</strong>Semaine AllergyLab, EFREI, programme Open Data University, novembre 2026.</div>
-    </div>
-    <p class="plan avis" data-a="fondu" data-t="12.2">Un outil d'exploration statistique. Il ne fournit aucun avis médical.</p>
+    <p class="avis" data-a="fondu" data-t="5.2">Un outil d'exploration statistique. Il ne fournit aucun avis médical.</p>
   </section>
 
   <div id="avancee"></div>
-  <div id="aide">Espace : pause &nbsp; ← → : reculer, avancer &nbsp; R : rejouer</div>
+  <div id="lancer"><div><strong>AllergyLab en 52 secondes</strong><span>Cliquez pour lancer, avec le son. Espace : pause. R : rejouer.</span></div></div>
 </div>
 
 <script>
-// La matière du film : les vraies parts de la puce, calculées par l'interface du projet.
-const MATIERE = {"parts": {"Toutes": [0.167, 0.224, 0.022, 0.144, 0.281, 0.199, 0.067, 0.145, 0.101, 0.027, 0.101, 0.186, 0.081, 0.028, 0.182, 0.191, 0.115, 0.17, 0.233, 0.153, 0.121, 0.135, 0.057, 0.045, 0.06, 0.03, 0.324, 0.154, 0.037, 0.055, 0.055, 0.079, 0.109, 0.118, 0.095, 0.104, 0.092, 0.1, 0.027, 0.189, 0.075, 0.092, 0.155, 0.065, 0.095, 0.225, 0.29, 0.148, 0.162, 0.328, 0.38, 0.465, 0.375, 0.392, 0.363, 0.15, 0.375, 0.155, 0.067, 0.019, 0.416, 0.11, 0.12, 0.073, 0.107, 0.147, 0.133, 0.055, 0.199, 0.136, 0.17, 0.022, 0.08, 0.015, 0.039, 0.137, 0.113, 0.258, 0.144, 0.168, 0.316, 0.13, 0.075, 0.163, 0.335, 0.076, 0.082, 0.114, 0.119, 0.112, 0.043, 0.5, 0.114, 0.125, 0.247, 0.363, 0.264, 0.233, 0.071, 0.087, 0.318, 0.149, 0.147, 0.118, 0.237, 0.175, 0.086, 0.129, 0.056, 0.019, 0.055, 0.179, 0.219, 0.167, 0.026, 0.373, 0.026, 0.139, 0.179, 0.263, 0.316, 0.39, 0.102, 0.359, 0.492, 0.455, 0.139, 0.371, 0.374, 0.268, 0.342, 0.218, 0.197, 0.212, 0.344, 0.114, 0.175, 0.31, 0.154, 0.363, 0.414, 0.29, 0.342, 0.206, 0.138, 0.122, 0.085, 0.322, 0.094, 0.19, 0.176, 0.251, 0.227, 0.202, 0.191, 0.414, 0.11, 0.208, 0.391, 0.311, 0.295, 0.15, 0.194, 0.345, 0.148, 0.397, 0.071, 0.373, 0.204, 0.144, 0.428, 0.271, 0.022, 0.449, 0.043, 0.171, 0.43, 0.45, 0.529, 0.165, 0.433, 0.291, 0.207, 0.211, 0.341, 0.175, 0.169, 0.311, 0.098, 0.203, 0.059, 0.462, 0.423, 0.155, 0.366, 0.205, 0.448, 0.378, 0.421, 0.178, 0.262, 0.083, 0.3, 0.239, 0.327, 0.333, 0.325, 0.112, 0.427, 0.191, 0.097, 0.212, 0.149, 0.344, 0.162, 0.19, 0.464, 0.115, 0.348, 0.088, 0.413, 0.536, 0.399, 0.426, 0.131, 0.25, 0.076, 0.136, 0.147, 0.069, 0.189, 0.093, 0.165, 0.122, 0.098, 0.18, 0.274, 0.062, 0.093, 0.079, 0.069], "ISAC_V1": [0.132, 0.152, 0.01, 0.129, 0.208, 0.208, 0.076, 0.037, 0.095, 0.019, 0.101, 0.128, 0.019, 0.028, 0.145, 0.188, 0.091, 0.182, 0.182, 0.15, 0.086, 0.132, 0.032, 0.021, 0.037, 0.03, 0.267, 0.136, 0.043, 0.011, 0.048, 0.02, 0.11, 0.084, 0.093, 0.08, 0.078, 0.084, 0.031, 0.213, 0.069, 0.076, 0.16, 0.07, 0.045, 0.217, 0.242, 0.136, 0.117, 0.361, 0.441, 0.474, 0.359, 0.389, 0.366, 0.154, 0.381, 0.125, 0.041, 0.006, 0.451, 0.105, 0.131, 0.081, 0.123, 0.136, 0.093, 0.036, 0.16, 0.085, 0.146, 0.02, 0.018, 0.013, 0.039, 0.155, 0.097, 0.241, 0.182, 0.106, 0.252, 0.147, 0.085, 0.176, 0.391, 0.091, 0.091, 0.081, 0.13, 0.069, 0.053, 0.489, 0.124, 0.114, 0.221, 0.397, 0.29, 0.218, 0.044, 0.069, 0.301, 0.164, 0.154, 0.062, 0.224, 0.202, 0.051, 0.072, 0.069, 0.021, 0.053, 0.061, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "ISAC_V2": [0.094, 0.092, 0.003, 0.188, 0.242, 0.155, 0.031, 0.013, 0.064, 0.003, 0.099, 0.143, null, null, 0.138, 0.169, 0.105, 0.156, 0.229, 0.1, 0.069, 0.074, 0.024, 0.032, 0.026, 0.032, 0.338, 0.074, 0.022, 0.005, 0.02, 0.012, 0.106, 0.073, 0.046, 0.044, 0.062, 0.038, 0.015, 0.164, 0.085, 0.051, 0.14, 0.031, 0.026, 0.248, 0.287, 0.078, 0.096, 0.101, 0.108, 0.312, 0.301, 0.348, 0.321, 0.136, 0.366, 0.119, 0.041, 0.008, 0.329, 0.079, 0.115, 0.047, 0.079, 0.095, 0.05, 0.031, 0.186, 0.064, 0.138, 0.013, 0.012, 0.008, null, 0.093, 0.091, null, 0.118, 0.113, 0.296, 0.082, 0.067, 0.123, 0.228, 0.032, 0.064, 0.045, 0.119, 0.051, 0.036, 0.387, 0.085, 0.059, 0.165, 0.262, 0.187, 0.134, 0.026, 0.012, null, 0.086, 0.07, null, 0.278, 0.109, 0.018, 0.051, 0.031, 0.01, 0.022, null, 0.1, 0.099, 0.026, 0.301, 0.026, 0.129, 0.111, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "ALEX": [0.291, 0.464, 0.06, null, 0.459, 0.209, 0.074, 0.46, 0.139, 0.06, 0.102, 0.335, 0.207, null, 0.289, 0.213, 0.172, 0.157, 0.341, 0.195, 0.229, 0.182, 0.132, 0.103, 0.133, 0.028, 0.43, 0.244, null, 0.179, 0.095, 0.245, null, 0.219, 0.132, 0.193, 0.142, 0.175, null, 0.156, 0.081, 0.154, null, 0.076, 0.245, null, 0.392, 0.219, 0.299, 0.416, 0.442, 0.55, 0.457, 0.428, 0.385, 0.15, 0.369, 0.24, 0.137, 0.055, 0.403, 0.142, 0.098, null, 0.092, 0.204, 0.275, 0.112, 0.288, 0.29, 0.24, 0.032, 0.255, 0.025, null, 0.131, 0.162, 0.294, 0.084, 0.334, 0.462, 0.127, 0.06, null, 0.293, null, 0.075, 0.227, 0.097, 0.243, 0.028, 0.601, null, 0.194, 0.356, null, null, 0.332, 0.158, 0.176, 0.355, 0.161, 0.186, 0.234, null, 0.165, 0.203, 0.301, 0.047, null, 0.082, 0.422, 0.3, 0.213, null, 0.422, null, 0.145, 0.225, 0.263, 0.316, 0.39, 0.102, 0.359, 0.492, 0.455, 0.139, 0.371, 0.374, 0.268, 0.342, 0.218, 0.197, 0.212, 0.344, 0.114, 0.175, 0.31, 0.154, 0.363, 0.414, 0.29, 0.342, 0.206, 0.138, 0.122, 0.085, 0.322, 0.094, 0.19, 0.176, 0.251, 0.227, 0.202, 0.191, 0.414, 0.11, 0.208, 0.391, 0.311, 0.295, 0.15, 0.194, 0.345, 0.148, 0.397, 0.071, 0.373, 0.204, 0.144, 0.428, 0.271, 0.022, 0.449, 0.043, 0.171, 0.43, 0.45, 0.529, 0.165, 0.433, 0.291, 0.207, 0.211, 0.341, 0.175, 0.169, 0.311, 0.098, 0.203, 0.059, 0.462, 0.423, 0.155, 0.366, 0.205, 0.448, 0.378, 0.421, 0.178, 0.262, 0.083, 0.3, 0.239, 0.327, 0.333, 0.325, 0.112, 0.427, 0.191, 0.097, 0.212, 0.149, 0.344, 0.162, 0.19, 0.464, 0.115, 0.348, 0.088, 0.413, 0.536, 0.399, 0.426, 0.131, 0.25, 0.076, 0.136, 0.147, 0.069, 0.189, 0.093, 0.165, 0.122, 0.098, 0.18, 0.274, 0.062, 0.093, 0.079, 0.069]}};
-
 (() => {
   const plateau = document.getElementById("plateau");
   const borne = (x) => Math.max(0, Math.min(1, x));
   const sortir = (x) => 1 - (1 - x) ** 3; // rapide puis doux : pour ce qui arrive
   const entrer = (x) => x ** 3; // doux puis rapide : pour ce qui part
-  const adoucir = (x) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2);
   const fr = (n, decimales) => n.toLocaleString("fr-FR", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
-  const PART_MAX = Math.max(...Object.values(MATIERE.parts).flat().map((p) => p ?? 0));
-  const ETEINT = [18, 41, 45];
-  const VIF = [61, 240, 194];
+  const TEMPS = 0.5; // un battement de la musique, en secondes
 
   // --- Chaque élément animé devient une fonction du temps écoulé dans sa scène. ---
   function animer(el) {
     const depart = +(el.dataset.t || 0);
-    const duree = +(el.dataset.d || 0.7);
+    const duree = +(el.dataset.d || 0.45);
     const fin = el.dataset.s === undefined ? null : +el.dataset.s;
     const gestes = [];
 
@@ -518,26 +219,38 @@ const MATIERE = {"parts": {"Toutes": [0.167, 0.224, 0.022, 0.144, 0.281, 0.199, 
       const sorte = el.dataset.a;
       gestes.push((t) => {
         const p = sortir(borne((t - depart) / duree));
-        const reste = fin === null ? 1 : 1 - entrer(borne((t - fin) / 0.45));
+        const reste = fin === null ? 1 : 1 - entrer(borne((t - fin) / 0.3));
         const formes = {
-          monte: `translateY(${(1 - p) * 38}px)`, gauche: `translateX(${(p - 1) * 54}px)`, droite: `translateX(${(1 - p) * 54}px)`,
-          zoom: `scale(${0.93 + 0.07 * p})`, pousse: `scaleX(${p})`, leve: `scaleY(${p})`, fondu: "",
+          monte: `translateY(${(1 - p) * 46}px)`, gauche: `translateX(${(p - 1) * 60}px)`,
+          frappe: `scale(${1.28 - 0.28 * p})`, // arrive trop grand et se pose : un accent sur le temps
+          pousse: `scaleX(${p})`, fondu: "",
         };
         el.style.transform = formes[sorte];
-        el.style.opacity = (sorte === "pousse" || sorte === "leve" ? (t >= depart ? 1 : 0) : p) * reste;
+        el.style.opacity = (sorte === "pousse" ? (t >= depart ? 1 : 0) : p) * reste;
       });
+    }
+
+    // Une phrase qui arrive mot après mot.
+    if (el.dataset.mots !== undefined) {
+      const pas = +(el.dataset.pas || 0.14);
+      const mots = el.textContent.trim().split(" ");
+      el.replaceChildren(...mots.map((mot, i) => {
+        const span = document.createElement("span");
+        span.className = "mot";
+        span.textContent = mot + (i < mots.length - 1 ? " " : "");
+        return span;
+      }));
+      gestes.push((t) => [...el.children].forEach((span, i) => {
+        const p = sortir(borne((t - depart - i * pas) / 0.4));
+        span.style.transform = `translateY(${(1 - p) * 52}px)`;
+        span.style.opacity = p;
+      }));
     }
 
     if (el.dataset.compte !== undefined) {
       const decimales = +(el.dataset.dec || 0);
-      const apres = el.dataset.apres || "";
-      const premiere = +el.dataset.compte;
-      const [seconde, quand] = el.dataset.puis ? el.dataset.puis.split("|").map(Number) : [null, null];
-      gestes.push((t) => {
-        let valeur = premiere * sortir(borne((t - depart) / duree));
-        if (seconde !== null && t >= quand) valeur = premiere + (seconde - premiere) * sortir(borne((t - quand) / 0.8));
-        el.textContent = fr(valeur, decimales) + apres;
-      });
+      const cible = +el.dataset.compte;
+      gestes.push((t) => { el.textContent = fr(cible * sortir(borne((t - depart) / duree)), decimales); });
     }
 
     if (el.dataset.frappe !== undefined) {
@@ -549,110 +262,29 @@ const MATIERE = {"parts": {"Toutes": [0.167, 0.224, 0.022, 0.144, 0.281, 0.199, 
       gestes.push((t) => {
         const p = borne((t - depart) / duree);
         corps.textContent = texte.slice(0, Math.round(texte.length * p));
-        curseur.style.opacity = t >= depart - 0.2 && t < depart + duree + 0.5 && Math.floor(t * 2.5) % 2 === 0 ? 1 : 0;
-      });
-    }
-
-    if (el.dataset.largeur !== undefined) {
-      const cible = +el.dataset.largeur;
-      gestes.push((t) => { el.style.width = `${cible * sortir(borne((t - depart) / 0.9))}%`; });
-    }
-
-    // « 5.4:actif » ajoute une classe à cet instant ; « 5.4:-actif » la retire.
-    if (el.dataset.quand) {
-      const bascules = el.dataset.quand.split(" ").map((morceau) => {
-        const [quand, classe] = morceau.split(":");
-        return { quand: +quand, classe: classe.replace(/^-/, ""), ajoute: !classe.startsWith("-") };
-      });
-      gestes.push((t) => {
-        for (const classe of new Set(bascules.map((b) => b.classe))) {
-          const derniere = bascules.filter((b) => b.classe === classe && t >= b.quand).pop();
-          el.classList.toggle(classe, derniere ? derniere.ajoute : false);
-        }
+        curseur.style.opacity = t >= depart - 0.2 && t < depart + duree + 0.4 && Math.floor(t * 4) % 2 === 0 ? 1 : 0;
       });
     }
 
     if (el.dataset.points !== undefined) {
       const points = Array.from({ length: 16 }, () => el.appendChild(document.createElement("i")));
       gestes.push((t) => points.forEach((point, i) => {
-        const phase = (t * 0.62 + ((i * 7) % 16) / 16) % 1; // chaque point s'allume à son tour, dans un ordre mêlé
+        const phase = (t * 1.1 + ((i * 7) % 16) / 16) % 1; // chaque point s'allume à son tour, dans un ordre mêlé
         point.style.opacity = 0.15 + 0.85 * Math.max(0, 1 - Math.abs(phase - 0.25) / 0.25);
       }));
     }
-
-    if (el.dataset.grille) gestes.push(grille(el, depart));
-    if (el.dataset.trajet) gestes.push(souris(el));
     return gestes;
-  }
-
-  // --- Une puce : chaque plot s'allume selon la vraie part de patients, rangée après rangée. ---
-  function grille(el, depart) {
-    const colonnes = +(el.dataset.colonnes || 24);
-    const pas = +(el.dataset.pas || 0.06);
-    const parColonne = el.dataset.par === "colonne";
-    const source = MATIERE.parts[el.dataset.grille];
-    const nombre = +(el.dataset.repete || source.length);
-    const [vers, quandVers] = el.dataset.vers ? el.dataset.vers.split("|") : [null, null];
-    const [choisi, quandChoisi] = el.dataset.choisi ? el.dataset.choisi.split("|").map(Number) : [null, null];
-    el.style.setProperty("--cols", colonnes);
-    const plots = Array.from({ length: nombre }, () => el.appendChild(document.createElement("i")));
-    const lumiere = (part) => (part === null ? null : 0.06 + (0.94 * part) / PART_MAX);
-    return (t) => plots.forEach((plot, i) => {
-      const retard = (parColonne ? i % colonnes : Math.floor(i / colonnes)) * pas;
-      const avant = lumiere(source[i % source.length]);
-      const allume = sortir(borne((t - depart - retard) / 0.6));
-      let valeur = avant;
-      if (vers) {
-        const apres = lumiere(MATIERE.parts[vers][i]);
-        const passage = adoucir(borne((t - quandVers - retard) / 0.6));
-        valeur = passage >= 1 ? apres : passage <= 0 ? avant : ((avant ?? 0) * (1 - passage) + (apres ?? 0) * passage);
-        if (passage > 0 && passage < 1 && apres === null && passage > 0.6) valeur = null;
-      }
-      plot.classList.toggle("absent", valeur === null && allume > 0.5);
-      plot.classList.toggle("choisi", choisi === i && t >= quandChoisi);
-      const v = (valeur ?? 0) * allume;
-      plot.style.background = `rgb(${ETEINT.map((c, k) => Math.round(c + (VIF[k] - c) * v)).join(",")})`;
-      plot.style.boxShadow = v > 0.3 ? `0 0 ${Math.round(v * 14)}px rgba(61, 240, 194, ${(v * 0.6).toFixed(2)})` : "";
-    });
-  }
-
-  // --- Le pointeur : il glisse d'un point à l'autre, et chaque clic laisse un anneau. ---
-  function souris(el) {
-    const clefs = el.dataset.trajet.split(" ").map((clef) => {
-      const [quand, position] = clef.split(":");
-      const [x, y] = position.split(",").map(Number);
-      return { quand: +quand, x, y };
-    });
-    const clics = (el.dataset.clics || "").split(" ").filter(Boolean).map(Number);
-    const anneau = el.querySelector(".clic");
-    return (t) => {
-      let k = clefs.findIndex((clef) => clef.quand > t);
-      if (k === -1) k = clefs.length;
-      const a = clefs[Math.max(0, k - 1)];
-      const b = clefs[Math.min(clefs.length - 1, k)];
-      const p = a === b ? 0 : adoucir(borne((t - a.quand) / (b.quand - a.quand)));
-      el.style.left = `${a.x + (b.x - a.x) * p}px`;
-      el.style.top = `${a.y + (b.y - a.y) * p}px`;
-      const dernier = clics.filter((clic) => t >= clic).pop();
-      const onde = dernier === undefined ? 1 : borne((t - dernier) / 0.55);
-      anneau.style.opacity = onde >= 1 ? 0 : 1 - onde;
-      anneau.style.transform = `scale(${0.4 + 1.3 * sortir(onde)})`;
-    };
   }
 
   // --- Le déroulé : les scènes se suivent, chacune avec sa durée. ---
   let total = 0;
   const scenes = [...document.querySelectorAll(".scene")].map((el) => {
-    const scene = { el, debut: total, duree: +el.dataset.duree, chapitre: el.dataset.chapitre || "", gestes: [] };
-    for (const animable of el.querySelectorAll("[data-a], [data-compte], [data-frappe], [data-largeur], [data-quand], [data-points], [data-grille], [data-trajet]")) {
-      scene.gestes.push(...animer(animable));
-    }
+    const scene = { el, debut: total, duree: +el.dataset.duree, gestes: [] };
+    for (const animable of el.querySelectorAll("[data-a], [data-mots], [data-compte], [data-frappe], [data-points]")) scene.gestes.push(...animer(animable));
     total += scene.duree;
     return scene;
   });
-
-  const chapitre = document.getElementById("chapitre");
-  const signature = document.getElementById("signature");
+  const halo = document.getElementById("halo");
   const avancee = document.getElementById("avancee");
 
   // rendre(t) dessine l'image du film à l'instant t, en secondes. Le même t donne toujours la même image.
@@ -661,31 +293,40 @@ const MATIERE = {"parts": {"Toutes": [0.167, 0.224, 0.022, 0.144, 0.281, 0.199, 
     for (const scene of scenes) {
       const local = t - scene.debut;
       const visible = local >= 0 && local < scene.duree;
-      scene.el.style.display = visible ? "block" : "none";
+      scene.el.style.display = visible ? "flex" : "none";
       if (!visible) continue;
-      const fondu = Math.min(sortir(borne(local / 0.5)), scene === scenes[scenes.length - 1] ? 1 : sortir(borne((scene.duree - local) / 0.45)));
-      scene.el.style.opacity = fondu;
+      const derniere = scene === scenes[scenes.length - 1];
+      scene.el.style.opacity = Math.min(sortir(borne(local / 0.25)), derniere ? 1 : sortir(borne((scene.duree - local) / 0.22)));
       for (const geste of scene.gestes) geste(local);
-      chapitre.textContent = scene.chapitre;
-      chapitre.style.opacity = fondu;
-      signature.style.opacity = scene === scenes[0] ? 0 : fondu;
     }
+    // La lueur s'allume sur chaque temps, puis retombe : l'image bat avec la musique.
+    halo.style.opacity = 0.55 + 0.45 * Math.exp(-((t % TEMPS) / TEMPS) * 5);
     avancee.style.width = `${(100 * t) / total}%`;
   }
 
-  // --- La lecture : en direct dans le navigateur, ou image par image pour l'export. ---
-  let instant = 0;
-  let enLecture = true;
-  let precedent = null;
+  // --- La lecture : en direct avec le son, ou image par image pour l'export en vidéo. ---
   const exporte = new URLSearchParams(location.search).has("export");
-  if (exporte) document.getElementById("aide").style.display = "none";
+  const musique = new Audio("musique.mp3");
+  const lancer = document.getElementById("lancer");
+  let instant = 0;
+  let enLecture = false;
+  let precedent = null;
 
   function tic(maintenant) {
-    if (enLecture && precedent !== null) instant = Math.min(total, instant + (maintenant - precedent) / 1000);
+    // Tant que la musique joue, c'est elle qui donne l'heure : l'image ne se décale jamais du son.
+    if (enLecture && !musique.paused && musique.currentTime > 0) instant = musique.currentTime;
+    else if (enLecture && precedent !== null) instant = Math.min(total, instant + (maintenant - precedent) / 1000);
     precedent = maintenant;
     rendre(instant);
-    document.getElementById("aide").style.opacity = instant < 5 || !enLecture || instant >= total ? 1 : 0;
     requestAnimationFrame(tic);
+  }
+
+  function demarrer(depuis) {
+    instant = depuis;
+    enLecture = true;
+    lancer.style.display = "none";
+    musique.currentTime = depuis;
+    musique.play().catch(() => { /* sans le fichier son, le film se joue quand même, en silence */ });
   }
 
   function ajuster() {
@@ -695,15 +336,19 @@ const MATIERE = {"parts": {"Toutes": [0.167, 0.224, 0.022, 0.144, 0.281, 0.199, 
   window.addEventListener("resize", ajuster);
   ajuster();
 
+  lancer.addEventListener("click", () => demarrer(0));
   document.addEventListener("keydown", (evenement) => {
-    if (evenement.key === " ") { enLecture = !enLecture; evenement.preventDefault(); }
-    if (evenement.key === "ArrowRight") instant = Math.min(total, instant + 5);
-    if (evenement.key === "ArrowLeft") instant = Math.max(0, instant - 5);
-    if (evenement.key.toLowerCase() === "r") { instant = 0; enLecture = true; }
+    if (evenement.key === " ") {
+      evenement.preventDefault();
+      if (lancer.style.display !== "none") return demarrer(0);
+      enLecture = !enLecture;
+      if (enLecture) musique.play().catch(() => {}); else musique.pause();
+    }
+    if (evenement.key.toLowerCase() === "r") demarrer(0);
   });
 
-  window.film = { rendre, total, scenes: scenes.map((scene) => ({ debut: scene.debut, duree: scene.duree, chapitre: scene.chapitre })) };
-  if (exporte) rendre(0); else requestAnimationFrame(tic);
+  window.film = { rendre, total };
+  if (exporte) { lancer.style.display = "none"; rendre(0); } else { rendre(0); requestAnimationFrame(tic); }
 })();
 </script>
 </body>

@@ -23,7 +23,7 @@ $ uv run kit agent "Vivre en ville cause-t-il davantage d'allergies ?"
                  et sensibilisation, jamais une cause.
 ```
 
-** Essayer l'agent en ligne : https://allergylab-agent.onrender.com **. La première visite peut prendre une minute, le temps que le serveur gratuit se réveille.
+**Essayer l'agent en ligne : https://allergylab-agent.onrender.com**. La première visite peut prendre une minute, le temps que le serveur gratuit se réveille.
 
 Projet réalisé pendant la semaine **AllergyLab** (EFREI, programme Open Data University, novembre 2026).
 

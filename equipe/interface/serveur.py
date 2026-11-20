@@ -5,6 +5,25 @@
 puis ouvre http://127.0.0.1:8000 dans ton navigateur. Ctrl+C arrête le serveur.
 Après une modification de ce fichier ou de donnees.py, il faut le relancer.
 
+Démo en ligne, ouverte depuis n'importe quel appareil, par un tunnel Cloudflare :
+
+    uv run python -m equipe.interface.serveur 8000 --tunnel
+    cloudflared tunnel --url http://localhost:8000      (dans un second terminal)
+
+Le serveur reste sur 127.0.0.1 : seul le tunnel l'atteint, pas le réseau local.
+L'agent tourne toujours sur cette machine, à l'identique de `uv run kit agent`.
+--tunnel accepte en plus les adresses *.trycloudflare.com, et plafonne le nombre
+de questions par heure, parce que n'importe qui ayant le lien dépense la clé.
+
+Hébergement permanent (Render, conteneur Docker : voir le Dockerfile à la racine) :
+
+    python -m equipe.interface.serveur --en-ligne
+
+--en-ligne écoute sur toutes les interfaces, sur le port donné par la variable
+PORT, et accepte l'adresse publique de la plateforme. La clé vient de la variable
+ALLERGYLAB_CLE, jamais d'un fichier du dépôt. Les plafonds se règlent avec
+ALLERGYLAB_QUESTIONS_HEURE et ALLERGYLAB_QUESTIONS_JOUR.
+
 À gauche, des graphiques comptés par equipe/interface/donnees.py, sans appel au
 modèle. À droite, l'agent : la page passe par le même chemin que
 `uv run kit agent`, donc même agent, même contrat de réponse, même trace écrite
@@ -13,8 +32,10 @@ standard de Python, la page n'appelle aucun site extérieur.
 """
 
 import json
+import os
 import sys
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -34,9 +55,18 @@ FICHIERS = {
 }
 # 127.0.0.1 : le serveur ne répond qu'à cette machine. L'agent exécute du code
 # et dépense la cagnotte de l'équipe : il ne s'ouvre pas au réseau.
-HOTE = "127.0.0.1"
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
-ORIGINES = (f"http://{HOTE}:{PORT}", f"http://localhost:{PORT}")
+EN_LIGNE = "--en-ligne" in sys.argv  # hébergement permanent, derrière le proxy https de la plateforme
+TUNNEL = "--tunnel" in sys.argv  # démo depuis ce PC, par un tunnel Cloudflare
+HOTE = "0.0.0.0" if EN_LIGNE else "127.0.0.1"
+ARGUMENTS = [argument for argument in sys.argv[1:] if not argument.startswith("--")]
+PORT = int(ARGUMENTS[0]) if ARGUMENTS else int(os.environ.get("PORT", "8000"))
+ORIGINES = (f"http://127.0.0.1:{PORT}", f"http://localhost:{PORT}")
+DOMAINE_TUNNEL = ".trycloudflare.com"
+# En ligne, n'importe qui ayant le lien dépense la clé : au-delà, le serveur refuse.
+QUESTIONS_PAR_HEURE = int(os.environ.get("ALLERGYLAB_QUESTIONS_HEURE", "30"))
+QUESTIONS_PAR_JOUR = int(os.environ.get("ALLERGYLAB_QUESTIONS_JOUR", "200"))
+PUBLIC = EN_LIGNE or TUNNEL
+POSEES = []  # instants des questions des dernières 24 heures, pour les plafonds
 LONGUEUR_MAX = 2000  # caractères d'une question
 NB_HISTORIQUE = 8  # questions passées que la page peut réafficher
 # Le kit ne suit qu'une question à la fois : les suivantes attendent leur tour.
@@ -99,8 +129,18 @@ class Page(BaseHTTPRequestHandler):
         self.json({"erreur": message}, code)
 
     def etranger(self):
-        """Vrai si la demande ne s'adresse pas à cette machine sous son propre nom."""
-        return self.headers.get("Host") not in (origine.removeprefix("http://") for origine in ORIGINES)
+        """Vrai si la demande ne s'adresse pas à cette machine sous son propre nom (ou à son tunnel)."""
+        hote = self.headers.get("Host") or ""
+        if EN_LIGNE and hote:
+            return False  # la plateforme ne transmet que les demandes faites à son adresse publique
+        if TUNNEL and hote.endswith(DOMAINE_TUNNEL):
+            return False
+        return hote not in (origine.removeprefix("http://") for origine in ORIGINES)
+
+    def origines_admises(self):
+        hote = self.headers.get("Host") or ""
+        public = EN_LIGNE or (TUNNEL and hote.endswith(DOMAINE_TUNNEL))
+        return ORIGINES + ((f"https://{hote}",) if public and hote else ())
 
     def do_GET(self):
         if self.etranger():
@@ -123,8 +163,15 @@ class Page(BaseHTTPRequestHandler):
         origine = self.headers.get("Origin")
         if self.path != "/question" or self.headers.get("Content-Type") != "application/json":
             return self.refuser(404, "Cette adresse n'existe pas.")
-        if self.etranger() or (origine and origine not in ORIGINES):
+        if self.etranger() or (origine and origine not in self.origines_admises()):
             return self.refuser(403, "Cette demande ne vient pas de la page de l'agent.")
+        if PUBLIC:
+            maintenant = time.monotonic()
+            POSEES[:] = [instant for instant in POSEES if maintenant - instant < 86400]
+            if sum(maintenant - instant < 3600 for instant in POSEES) >= QUESTIONS_PAR_HEURE:
+                return self.refuser(429, f"La démo est limitée à {QUESTIONS_PAR_HEURE} questions par heure. Réessayez plus tard.")
+            if len(POSEES) >= QUESTIONS_PAR_JOUR:
+                return self.refuser(429, f"La démo est limitée à {QUESTIONS_PAR_JOUR} questions par jour. Réessayez demain.")
         try:
             taille = int(self.headers.get("Content-Length", "0"))
             texte = json.loads(self.rfile.read(min(taille, 4 * LONGUEUR_MAX)))["question"].strip()
@@ -132,6 +179,8 @@ class Page(BaseHTTPRequestHandler):
             return self.refuser(400, "La question est illisible.")
         if not texte or len(texte) > LONGUEUR_MAX:
             return self.refuser(400, f"Écrivez une question de {LONGUEUR_MAX} caractères au plus.")
+        if PUBLIC:
+            POSEES.append(time.monotonic())  # seules les vraies questions comptent dans le plafond
         self.json(interroger(texte))
 
     def log_message(self, *arguments):
@@ -155,7 +204,12 @@ if __name__ == "__main__":
     # Les chiffres des graphiques se calculent ici, une fois, avant d'annoncer l'adresse :
     # la page les reçoit ensuite sans attendre.
     donnees.resume()
-    print(f"Interface de l'agent : {ORIGINES[0]}  (Ctrl+C pour arrêter)")
+    print(f"Interface de l'agent : {ORIGINES[0]}  (Ctrl+C pour arrêter)", flush=True)
+    if EN_LIGNE:
+        print(f"Mode en ligne : port {PORT}, {QUESTIONS_PAR_HEURE} questions par heure et {QUESTIONS_PAR_JOUR} par jour au plus.", flush=True)
+    if TUNNEL:
+        print(f"Mode démo en ligne : adresses {DOMAINE_TUNNEL} acceptées, {QUESTIONS_PAR_HEURE} questions par heure au plus.")
+        print(f"Dans un second terminal : cloudflared tunnel --url http://localhost:{PORT}")
     try:
         serveur.serve_forever()
     except KeyboardInterrupt:

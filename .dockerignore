@@ -1,0 +1,7 @@
+# Rien de ce qui suit n'entre dans l'image du serveur en ligne.
+.git
+.venv
+**/__pycache__
+.pytest_cache
+*.env
+.allergylab

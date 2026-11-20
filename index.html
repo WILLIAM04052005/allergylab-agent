@@ -22,9 +22,12 @@
   /* Une lueur qui bat avec la musique, derrière tout le reste. */
   #halo { position: absolute; inset: 0; background: radial-gradient(1100px 760px at 74% 30%, #12343A 0%, rgba(8, 17, 20, 0) 70%); }
   #avancee { position: absolute; left: 0; bottom: 0; height: 6px; width: 0; background: var(--vert); }
-  #lancer { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; background: rgba(8, 17, 20, 0.92); cursor: pointer; text-align: center; }
-  #lancer strong { display: block; font-size: 84px; font-weight: 600; letter-spacing: -0.02em; }
-  #lancer span { color: var(--sourdine); }
+  /* L'ouverture : un bouton de lecture, rien d'autre. Le clic lance l'image et le son ensemble. */
+  #lancer { position: absolute; inset: 0; z-index: 9; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px;
+    border: 0; background: none; color: var(--encre); font: 600 64px var(--texte); letter-spacing: -0.02em; cursor: pointer; }
+  #lancer[hidden] { display: none; }
+  #lancer svg { width: 200px; height: 200px; }
+  #lancer:focus-visible { outline: 6px solid var(--vert); outline-offset: -30px; }
 
   .scene { position: absolute; inset: 0; padding: 120px 150px; display: none; flex-direction: column; justify-content: center; }
   .ambre { color: var(--ambre); }
@@ -196,7 +199,10 @@
   </section>
 
   <div id="avancee"></div>
-  <div id="lancer"><div><strong>AllergyLab en 52 secondes</strong><span>Cliquez pour lancer, avec le son. Espace : pause. R : rejouer.</span></div></div>
+  <button type="button" id="lancer">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#3DF0C2"/><path d="M41 30v40l31-20z" fill="#081114"/></svg>
+    Voir la démonstration
+  </button>
 </div>
 
 <script>
@@ -321,12 +327,19 @@
     requestAnimationFrame(tic);
   }
 
+  // Lance la musique à l'instant où en est le film.
+  function jouerMusique() {
+    if (instant >= total) return;
+    musique.currentTime = instant;
+    musique.play().catch(() => { /* sans le fichier son, le film se joue quand même, en silence */ });
+  }
+
+  // Le clic sur le bouton d'ouverture est le geste que les navigateurs attendent pour autoriser le son.
   function demarrer(depuis) {
     instant = depuis;
     enLecture = true;
-    lancer.style.display = "none";
-    musique.currentTime = depuis;
-    musique.play().catch(() => { /* sans le fichier son, le film se joue quand même, en silence */ });
+    lancer.hidden = true;
+    jouerMusique();
   }
 
   function ajuster() {
@@ -337,18 +350,19 @@
   ajuster();
 
   lancer.addEventListener("click", () => demarrer(0));
+  // Une fois le film lancé : Espace met en pause ou reprend, R le rejoue depuis le début.
   document.addEventListener("keydown", (evenement) => {
+    if (!lancer.hidden) return; // tant que le bouton est là, Entrée et Espace l'activent d'eux-mêmes
     if (evenement.key === " ") {
       evenement.preventDefault();
-      if (lancer.style.display !== "none") return demarrer(0);
       enLecture = !enLecture;
-      if (enLecture) musique.play().catch(() => {}); else musique.pause();
+      if (enLecture) jouerMusique(); else musique.pause();
     }
     if (evenement.key.toLowerCase() === "r") demarrer(0);
   });
 
-  window.film = { rendre, total };
-  if (exporte) { lancer.style.display = "none"; rendre(0); } else { rendre(0); requestAnimationFrame(tic); }
+  window.film = { rendre, total, sonEnCours: () => !musique.paused && musique.currentTime > 0 };
+  if (exporte) { lancer.hidden = true; rendre(0); } else { rendre(0); requestAnimationFrame(tic); }
 })();
 </script>
 </body>

@@ -24,6 +24,9 @@ $ uv run kit agent "Vivre en ville cause-t-il davantage d'allergies ?"
 ```
 
 **Essayer l'agent en ligne : https://allergylab-agent.onrender.com**. La première visite peut prendre une minute, le temps que le serveur gratuit se réveille.
+**Motion design demonstration : https://william04052005.github.io/allergylab-agent/
+Publié sur data.gouv.fr comme réutilisation du jeu de données de la SFA : https://www.data.gouv.fr/reuses/agent-ia-qui-repond-aux-questions-sur-les-donnees-dallergologie-de-la-sfa
+
 
 
 Projet réalisé pendant la semaine **AllergyLab** (EFREI, programme Open Data University, novembre 2026).
